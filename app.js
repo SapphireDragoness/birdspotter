@@ -13,20 +13,18 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const userDao = require('./models/user-dao.js');
-const { Passport } = require('passport');
 
-// const requirejs = require('requirejs');
-// requirejs.config({
-//   baseUrl: __dirname,
-//   nodeRequire: require
-// });
+const requirejs = require('requirejs');
+requirejs.config({
+  baseUrl: __dirname,
+  nodeRequire: require
+});
 
 // page routers
-const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
-const adminRouter = require('./routes/admin');
-const userRouter = require('./routes/user');
+// const adminRouter = require('./routes/admin');
+// const userRouter = require('./routes/user');
 
 // app creation
 const app = express();
@@ -43,8 +41,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // passport setup
-passport.use(new LocalStrategy(
-  function(username, password, done) {
+passport.use(new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
     userDao.getUser(username, password).then(({user, check}) => {
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
@@ -59,13 +56,22 @@ passport.use(new LocalStrategy(
 
 // user serialization and deserialization
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  const serializedUser = {
+    username: user.username,
+    type: user.type
+  };
+  done(null, serializedUser);
 });
 
-passport.deserializeUser(function(id, done) {
-  userDao.getUserByEmail(id).then(user => {
-    done(null, user);
-  });
+passport.deserializeUser(function(serializedUser, done) {
+  userDao.getUserByUsername(serializedUser.username)
+    .then(({ user, error }) => {
+      if (error) return done(error);
+      done(null, user);
+    })
+    .catch((err) => {
+      done(err);
+    });
 });
 
 // session management
@@ -80,9 +86,33 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // route management
-app.use('/', indexRouter);
 app.use('/login', loginRouter);
+app.use('/register', registerRouter);
 
+// request birds
+
+
+// gets
+app.get('/', async(req, res) => {
+  if(req.isAuthenticated())
+    res.render('index', {aut: true, type: req.user.type, username: req.body.username});
+  else
+    res.render('index', {aut: false, type: false, username: false});
+});
+
+// app.get('/faq', async(req, res) => {
+//   if(req.isAuthenticated()) {
+//     res.render('index', {aut: true, type: req.user.type, username: req.body.username})
+//   }
+// });
+
+// logout
+app.post('/logout', function(req, res, next) {
+  req.logout(function(err) {
+    if(err) return next(err);
+    res.redirect('/');
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
