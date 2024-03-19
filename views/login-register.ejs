@@ -23,26 +23,34 @@
                     <div class="shadow-lg">
                         <div class="d-flex align-items-center">
                             <div class="d-none d-md-block d-lg-block">
-                                <img src="images/heron-login.jpg" class="objectFit"   alt="heron login"/>
+                                <img src="images/heron-login.jpg" class="objectFit" alt="heron login"/>
                             </div>
 
                             <% if(login) { %>
 
                                 <div class="p-4" id="formPanel">
-                                    <div class="text-center mb-5">
+                                    <div class="text-center">
                                         <h1 class="customHeading h3 text-uppercase">Login</h1>
                                     </div>
                                     <form action="/login" method="POST">
+                                        <% if(failure) { %>
+                                            <div class="row">
+                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto" role="alert">
+                                                    <strong>Errore: <%= message %></strong>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            </div>
+                                        <% } %>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="username">Username</label>
-                                            <input type="text" id="username" class="pb-1" /><span class="pb-1"></span>
+                                            <input type="text" id="username" class="pb-1" placeholder="Your username" name="username"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="password">Password</label>
-                                            <input type="password" id="password" class="pb-1" /><span class="pb-1"></span>
+                                            <input type="password" id="password" class="pb-1" placeholder="Your password" name="password"/><span class="pb-1"></span>
                                         </div>
                                         <div class="mt-5">
-                                            <button class="w-100 p-2 d-block custom-btn" >Login</button>
+                                            <button type="submit" class="w-100 p-2 d-block custom-btn" >Login</button>
                                         </div>
                                     </form>
                                 </div>
@@ -50,32 +58,40 @@
                             <% } else { %>
 
                                 <div class="p-4" id="formPanel">
-                                    <div class="text-center mb-5">
+                                    <div class="text-center">
                                         <h1 class="customHeading h3 text-uppercase">Register</h1>
                                     </div>
                                     <form action="/register" method="POST">
+                                        <% if(failure) { %>
+                                            <div class="row">
+                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto" role="alert">
+                                                    <strong>Error: <%= message %></strong>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                </div>
+                                            </div>
+                                        <% } %>
                                         <div class="custom-form-group mt-3">
-                                            <label class="text-uppercase" for="firstname">First Name</label>
-                                            <input type="text" id="username" class="pb-1" /><span class="pb-1"></span>
+                                            <label class="text-uppercase" for="firstName">First Name</label>
+                                            <input type="text" id="firstName" class="pb-1" placeholder="Your first name" name="firstName"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
-                                            <label class="text-uppercase" for="lastname">Last Name</label>
-                                            <input type="text" id="username" class="pb-1" /><span class="pb-1"></span>
+                                            <label class="text-uppercase" for="lastName">Last Name</label>
+                                            <input type="text" id="lastName" class="pb-1" placeholder="Your last name" name="lastName"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="email">Email</label>
-                                            <input type="email" id="username" class="pb-1" /><span class="pb-1"></span>
+                                            <input type="email" id="email" class="pb-1" placeholder="Your email" name="email"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="username">Username</label>
-                                            <input type="text" id="username" class="pb-1" /><span class="pb-1"></span>
+                                            <input type="text" id="username" class="pb-1" placeholder="Your username" name="username"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="password">Password</label>
-                                            <input type="password" id="password" class="pb-1" /><span class="pb-1"></span>
+                                            <input type="password" id="password" class="pb-1" placeholder="Your password" name="password"/><span class="pb-1"></span>
                                         </div>
                                         <div class="mt-5">
-                                            <button class="w-100 p-2 d-block custom-btn" >Register</button>
+                                            <button type="submit" class="w-100 p-2 d-block custom-btn" >Register</button>
                                         </div>
                                     </form>
                                 </div>

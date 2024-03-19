@@ -41,7 +41,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // passport setup
-passport.use(new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
+passport.use('user', new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
     userDao.getUser(username, password).then(({user, check}) => {
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });

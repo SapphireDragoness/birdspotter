@@ -1,26 +1,39 @@
 <header class="p-3 bg-dark text-white">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
-            </a>
-
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+                <li><img src="images/site-logo.png" alt="Company Logo" height="38"></li>
+                <li><a href="/" class="nav-link px-2 text-white">Home</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+                <li><a href="https://avibase.bsc-eoc.org/checklist.jsp?region=ITpi" class="nav-link px-2 text-white">Bird Database</a></li>
             </ul>
 
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search">
+                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search...">
             </form>
 
             <div class="text-end">
-                <button type="button" class="btn btn-outline-light me-2">Login</button>
-                <button type="button" class="btn btn-warning">Sign-up</button>
+                <!-- checks if user is authenticated and displays the correct navbar -->
+                <% if (aut === false) { %>
+                    <a href="/login"><button type="button" class="btn btn-outline-light me-2"><i class="fa-solid fa-right-to-bracket"></i> Login</button></a>
+                    <a href="/register"><button type="button" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Sign-up</button></a>
+                <% } else { %>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Welcome, <%= username %> !
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                        </ul>
+                    </div>
+
+                <% } %>
             </div>
         </div>
     </div>
 </header>
+
+<script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
+<script src="/public/javascripts/logout.js"></script>
