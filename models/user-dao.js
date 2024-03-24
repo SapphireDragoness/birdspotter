@@ -88,14 +88,104 @@ exports.getUser = function(username, password) {
   });
 };
 
+/**
+ * Turns a user into an administrator.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
 exports.makeAdmin = function(username) {
   return new Promise((resolve, reject) => {
-    // TODO
+    const sql = "UPDATE user SET type = ? WHERE username = ?";
+
+    db.run(sql, ["admin", username]), (err) => {
+      if(err) reject(err);
+      else resolve();
+    }
   });
 };
 
+/**
+ * Revokes administrator rights from a user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
 exports.revokeAdmin = function(username) {
   return new Promise((resolve, reject) => {
-    // TODO
+    const sql = "UPDATE user SET type = ? WHERE username = ?";
+
+    db.run(sql, ["user", username], (err) => {
+      if(err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+/**
+ * Turns a user into a moderator.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.makeModerator = function makeModerator(username) {
+  return new Promise((resolve, reject) => {
+    const sql = "UPDATE user SET type = ? WHERE username = ?";
+
+    db.run(sql, ["moderator", username], (err) => {
+      if(err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+/**
+ * Revokes moderator rights from a user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.revokeModerator = function(username) {
+  return new Promise((resolve, reject) => {
+    const sql = "UPDATE user SET type = ? WHERE username = ?";
+
+    db.run(sql, ["user", username], (err) => {
+      if(err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+/**
+ * Bans a user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.banUser = function(username) {
+  return new Promise((resolve, reject) => {
+    const sql = "UPDATE user SET banned = ? WHERE username = ?";
+
+    db.run(sql, [1, username], (err) => {
+      if(err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+/**
+ * Unbans a user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.unbanUser = function(username) {
+  return new Promise((resolve, reject) => {
+    const sql = "UPDATE user SET banned = ? WHERE username = ?";
+
+    db.run(sql, [0, username], (err) => {
+      if(err) reject(err);
+      else resolve();
+    });
   });
 };
