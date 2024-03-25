@@ -24,8 +24,11 @@
         <h1 class="fw-light">Welcome to BirdSpotter!</h1>
         <p class="lead text-muted">A place to share our passion for local wildlife through photography.</p>
         <p>
-          <a href="#" class="btn btn-primary my-2">Main call to action</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+          <% if (aut === false) { %>
+            <a href="/login" class="btn btn-primary my-2">Login to post pictures</a>
+          <% } else { %>
+            <a href="#" class="btn btn-primary my-2">Post a picture</a>
+          <% } %>
         </p>
       </div>
     </div>
@@ -33,9 +36,11 @@
 
   <div class="album py-5 bg-light">
     <div class="container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
       <!-- cards go here -->
 
+      </div>
     </div>
   </div>
 

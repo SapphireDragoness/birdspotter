@@ -8,8 +8,15 @@
                 <li><a href="https://avibase.bsc-eoc.org/checklist.jsp?region=ITpi" class="nav-link px-2 text-white">Bird Database</a></li>
             </ul>
 
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search...">
+            <form class="d-flex col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+                <select class="form-select-dark form-select-sm" aria-label="Search selection">
+                    <option selected>General</option>
+                    <option value="birds">Birds</option>
+                    <option value="authors">Authors</option>
+                    <option value="location">Location</option>
+                    <option value="date">Date</option>
+                </select>
+                <input type="search" class="form-control form-control-dark" placeholder="Search posts..." aria-label="Search posts...">
             </form>
 
             <div class="text-end">
@@ -23,6 +30,7 @@
                             Welcome, <%= username %> !
                         </button>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-camera"></i> Add photo</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/logout" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
@@ -36,4 +44,4 @@
 </header>
 
 <script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
-<script src="/public/javascripts/logout.js"></script>
+<script src="javascripts/logout.js"></script>
