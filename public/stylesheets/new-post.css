@@ -1,0 +1,108 @@
+.customHeading {
+    color:#212529;
+}
+.custom-form-group label {
+    color:#212529;
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+.custom-form-group span {
+    width:32px;
+    border-bottom:1px solid ;
+    vertical-align:middle;
+    color:#212529;
+    display:inline;
+}
+.custom-form-group input {
+    width : calc(100% - 32px);
+    border:none;
+    border-bottom:1px solid #212529;
+    box-sizing:content-box;
+    outline:none;
+}
+.custom-btn {
+    border-radius:32px;
+    background : #212529;
+    border:2px solid transparent;
+    color:#fff;
+    height:48px;
+}
+.custom-btn:hover {
+    background : #fff;
+    border:none;
+    border:2px solid #212529;
+    color:#212529;
+}
+#formPanel {
+    min-width:280px;
+    max-width:320px;
+    width:100%;
+    margin:0 auto;
+}
+.objectFit {
+    object-fit:cover;
+    width:100%;
+    max-width:320px;
+    min-height:70vh;
+    margin:0 auto
+}
+#showCursor {
+    cursor:pointer
+}
+
+#result {
+    border: 1px dotted #ccc;
+    padding: 3px;
+}
+#result ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+#result ul li {
+    padding: 5px 0;
+}
+#result ul li:hover {
+    background: #eee;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/*the container must be positioned relative:*/
+.autocomplete {
+    position: relative;
+    display: inline-block;
+}
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+}
