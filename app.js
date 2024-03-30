@@ -23,6 +23,7 @@ requirejs.config({
 // page routers
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
+const newPostRouter = require('./routes/new-post');
 // const adminRouter = require('./routes/admin');
 // const userRouter = require('./routes/user');
 
@@ -88,6 +89,7 @@ app.use(passport.session());
 // route management
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
+app.use('/new-post', newPostRouter);
 
 // request birds
 
@@ -95,16 +97,10 @@ app.use('/register', registerRouter);
 // gets
 app.get('/', async(req, res) => {
   if(req.isAuthenticated())
-    res.render('index', {aut: true, type: req.user.type, username: req.body.username});
+    res.render('index', {aut: true, type: req.user.type, username: req.user.username});
   else
     res.render('index', {aut: false, type: false, username: false});
 });
-
-// app.get('/faq', async(req, res) => {
-//   if(req.isAuthenticated()) {
-//     res.render('index', {aut: true, type: req.user.type, username: req.body.username})
-//   }
-// });
 
 // logout
 app.post('/logout', function(req, res, next) {
