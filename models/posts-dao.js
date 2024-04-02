@@ -121,6 +121,7 @@ exports.getAllPostsByLocation = function () {
 /**
  * Adds a post to the database.
  *
+ * @param filename
  * @param op
  * @param bird
  * @param location
@@ -128,16 +129,19 @@ exports.getAllPostsByLocation = function () {
  * @param comment
  * @returns {Promise<unknown>}
  */
-exports.addPost = function (op, bird, location, title, comment) {
+exports.addPost = function (filename, op, bird, location, title, comment) {
   return new Promise((resolve, reject) => {
-    const photoPath = "public/images/user_images/" + op + "_" + Date.now();
+    const dateTime = Date.now();
     const sql = `
-    INSERT INTO posts (op, photoPath, bird, location, date, time, title, comment)
-    VALUES (?, photoPath, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?)
+    INSERT INTO posts (id, photoPath, op, bird, location, dateTime, title, comment)
+    VALUES (null, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(sql, [op, bird, location, title, comment], (err) => {
-      if (err) reject(err);
+    db.run(sql, ["public/images/user_images/" + filename, op, bird, location, dateTime, title, comment], (err) => {
+      if (err) {
+        console.log(err.message);
+        reject(err);
+      }
       else resolve();
     });
   });
@@ -240,3 +244,60 @@ exports.removeComment = function () {
     });
   });
 };
+
+exports.getBirds = function () {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT speciesName
+      FROM birds
+    `;
+
+    db.all(sql, (err, rows) => {
+      if (err) reject(err);
+      else {
+        let birds = rows.map((e) =>({
+            bird: e.speciesName
+          }
+        ));
+        resolve(birds);
+      }
+    });
+  });
+};
+
+exports.getLocations = function () {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT name
+      FROM parks
+    `;
+
+    db.all(sql, (err, rows) => {
+      if (err) reject(err);
+      else {
+        let locations = rows.map((e) =>({
+            location: e.name
+          }
+        ));
+        resolve(locations);
+      }
+    });
+  });
+};
+
+exports.addPhotoPath = function (id, filename) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+     UPDATE posts
+     SET photoPath = ?
+     WHERE id = ?
+    `;
+
+    db.run(sql, ["public/images/user_images/" + filename, id], (err) => {
+      if (err) {
+        console.log(err.message);
+        reject(err);
+      }
+    });
+  });
+}

@@ -32,7 +32,7 @@
                                     <div class="text-center">
                                         <h1 class="customHeading h3 text-uppercase">New Post</h1>
                                     </div>
-                                    <form action="/new-post" method="POST">
+                                    <form action="/new-post" method="POST" enctype="multipart/form-data">
                                         <% if(failure) { %>
                                             <div class="row">
                                                 <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto" role="alert">
@@ -46,8 +46,8 @@
                                             <input type="text" id="title" class="pb-1" placeholder="A captivating title" name="title"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
-                                            <label for="formFile" class="form-label">Default file input example</label>
-                                            <input class="form-control" type="file" id="formFile"><span class="pb-1"></span>
+                                            <label for="image" class="text-uppercase">Upload image</label>
+                                            <input class="form-control" type="file" id="image" name="image"><span class="pb-1"></span>
                                         </div>
                                         <div class="autocomplete custom-form-group mt-3">
                                             <label class="text-uppercase" for="bird">Bird</label>

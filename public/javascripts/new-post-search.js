@@ -97,9 +97,57 @@ function autocomplete(inp, arr) {
   });
 }
 
-/*An array containing all the country names in the world:*/
-const birds = [];
-const locations = [];
+const birds = [
+  "Unknown",
+  "Phasianus colchius",
+  "Podiceps cristatus",
+  "Columba livia",
+  "Streptopelia decaocto",
+  "Fulica atra",
+  "Gavia immer",
+  "Ciconia ciconia",
+  "Phalacrocorax carbo",
+  "Bubulcus ibis",
+  "Ardea alba",
+  "Egretta garzetta",
+  "Ardea cinerea",
+  "Threskiornis aethiopicus",
+  "Buteo buteo",
+  "Tyto alba",
+  "Bubo bubo",
+  "Upupa epops",
+  "Alcedo atthis",
+  "Dendrocopos major",
+  "Dryobates minor",
+  "Picus viridis",
+  "Falco tinnunculus",
+  "Garrulus glandarius",
+  "Pica pica",
+  "Corvus corone",
+  "Corvus cornix",
+  "Cyanistes caeruleus",
+  "Parus major",
+  "Hirundoo rustica",
+  "Turdus merula",
+  "Erithacus rubecola",
+  "Passer italiae",
+  "Passer domesticus",
+  "Passer montanus"
+];
+
+const locations = [
+  "Ossola and Binn Valley",
+  "Sesia Valley",
+  "Ticino Natural Park",
+  "Protected Areas of Lake Maggiore",
+  "Protected Areas of Baragge",
+  "Alpi Cozie Natural Parks",
+  "Monviso Natural Park",
+  "Protected Areas of Appennino Piemontese",
+  "Astigian Paleontological Parks",
+  "Royal Parks",
+  "Outside protected areas"
+];
 
 /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
 autocomplete(document.getElementById("bird"), birds);

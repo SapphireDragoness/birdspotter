@@ -36,7 +36,7 @@
 }
 #formPanel {
     min-width:280px;
-    max-width:320px;
+    max-width:420px;
     width:100%;
     margin:0 auto;
 }
@@ -74,7 +74,6 @@
 /*the container must be positioned relative:*/
 .autocomplete {
     position: relative;
-    display: inline-block;
 }
 
 .autocomplete-items {
