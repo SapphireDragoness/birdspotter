@@ -26,8 +26,6 @@ router.post('/', [
   ], async (req, res) => {
   const error = validationResult(req);
     if (!error.isEmpty()) {
-      console.log('cant execute');
-      console.log(error);
       res.render('login-register.ejs',
         {
           type: null,
@@ -47,7 +45,7 @@ router.post('/', [
         res.redirect('/login');
       }
       catch (error) {
-        res.render('input.ejs',
+        res.render('login-register.ejs',
           {
             type: null,
             failure: true,

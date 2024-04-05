@@ -133,7 +133,7 @@ exports.makeModerator = function makeModerator(username) {
     const sql = "UPDATE user SET type = ? WHERE username = ?";
 
     db.run(sql, ["moderator", username], (err) => {
-      if(err) reject(err);
+      if (err) reject(err);
       else resolve();
     });
   });
