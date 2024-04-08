@@ -22,6 +22,29 @@ function mapPost(e) {
 }
 
 /**
+ * Returns a post with a certain id.
+ *
+ * @param id
+ * @returns {Promise<unknown>}
+ */
+exports.getPostByID = function (id) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT *
+      FROM posts
+      WHERE id = ?
+    `;
+
+    db.get(sql, [id], (err, row) => {
+      if (err)
+        reject(err);
+      else
+        resolve(row.map(mapPost));
+    });
+  });
+};
+
+/**
  * Returns trending posts, enough (9) to fill the homepage.
  *
  * @returns {Promise<unknown>}
@@ -76,11 +99,21 @@ exports.getAllPostsGeneralSearch = function (searchString) {
   });
 };
 
-exports.getAllPostsByUser = function () {
+/**
+ * Returns all posts made by a certain user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.getAllPostsByUser = function (username) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      SELECT *
+      FROM posts 
+      WHERE op = ?
+    `;
 
-    db.all(sql, (err, rows) => {
+    db.all(sql, [username], (err, rows) => {
       if (err) reject(err);
       else {
         let posts = rows.map(mapPost);
@@ -90,11 +123,21 @@ exports.getAllPostsByUser = function () {
   });
 };
 
-exports.getAllPostsByBird = function () {
+/**
+ * Returns all posts picturing a certain bird.
+ *
+ * @param bird
+ * @returns {Promise<unknown>}
+ */
+exports.getAllPostsByBird = function (bird) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      SELECT *
+      FROM posts 
+      WHERE bird = ?
+    `;
 
-    db.all(sql, (err, rows) => {
+    db.all(sql, [bird], (err, rows) => {
       if (err) reject(err);
       else {
         let posts = rows.map(mapPost);
@@ -104,11 +147,21 @@ exports.getAllPostsByBird = function () {
   });
 };
 
-exports.getAllPostsByLocation = function () {
+/**
+ * Returns all posts made in a certain location.
+ *
+ * @param location
+ * @returns {Promise<unknown>}
+ */
+exports.getAllPostsByLocation = function (location) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      SELECT *
+      FROM posts 
+      WHERE location = ?
+    `;
 
-    db.all(sql, (err, rows) => {
+    db.all(sql, [location], (err, rows) => {
       if (err) reject(err);
       else {
         let posts = rows.map(mapPost);
@@ -147,104 +200,172 @@ exports.addPost = function (filename, op, bird, location, title, comment) {
   });
 };
 
-exports.removePost = function () {
+/**
+ * Removes a post from the database.
+ *
+ * @param id
+ * @returns {Promise<unknown>}
+ */
+exports.removePost = function (id) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      DELETE FROM posts
+      WHERE posts.id = ?
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [id], (err, rows) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
-exports.getNumberOfLikes = function () {
+/**
+ * Returns the number of likes on a post.
+ *
+ * @param id
+ * @returns {Promise<unknown>}
+ */
+exports.getNumberOfLikes = function (id) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      SELECT COUNT(*) AS total
+      FROM likes JOIN users ON likes.user = users.username 
+      WHERE post = ?
+    `;
 
-    db.all(sql, (err, rows) => {
+    db.get(sql, [id], (err, row) => {
       if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+      else
+        resolve(row.total);
     });
   });
 };
 
-exports.updatePost = function () {
+/**
+ * Updates an existing post.
+ *
+ * @param bird
+ * @param location
+ * @param title
+ * @param comment
+ * @returns {Promise<unknown>}
+ */
+exports.updatePost = function (bird, location, title, comment) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      UPDATE posts SET bird = ?, location = ?, title = ?, comment = ? 
+      WHERE id = ?
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [bird, location, title, comment], (err) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
-exports.addLike = function () {
+/**
+ * Adds a like to a post.
+ *
+ * @param user
+ * @param post
+ * @returns {Promise<unknown>}
+ */
+exports.addLike = function (user, post) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      INSERT INTO likes (user, post) 
+      VALUES (?, ?)
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [user, post], (err) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
-exports.removeLike = function () {
+/**
+ * Removes a like from a post.
+ *
+ * @param user
+ * @param post
+ * @returns {Promise<unknown>}
+ */
+exports.removeLike = function (user, post) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      DELETE FROM likes
+      WHERE likes.user = ? AND likes.post = ?
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [user, post], (err) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
-exports.addComment = function () {
+/**
+ * Adds a comment to a post.
+ *
+ * @param user
+ * @param comment
+ * @returns {Promise<unknown>}
+ */
+exports.addComment = function (user, comment) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      INSERT INTO comments (user, post)
+      VALUES (?, ?)
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [user, comment], (err) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
-exports.removeComment = function () {
+/**
+ * Removes a comment from a post.
+ *
+ * @param user
+ * @param comment
+ * @returns {Promise<unknown>}
+ */
+exports.removeComment = function (user, comment) {
   return new Promise((resolve, reject) => {
-    const sql = "";
+    const sql = `
+      DELETE FROM comments
+      WHERE comments.user = ? AND comments.post = ?
+    `;
 
-    db.all(sql, (err, rows) => {
-      if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+    db.run(sql, [user, comment], (err) => {
+      if (err)
+        reject(err);
+      else
+        resolve();
     });
   });
 };
 
+/**
+ * Returns all birds present in the database.
+ *
+ * @returns {Promise<unknown>}
+ */
 exports.getBirds = function () {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -265,6 +386,11 @@ exports.getBirds = function () {
   });
 };
 
+/**
+ * Returns all parks present in the database.
+ *
+ * @returns {Promise<unknown>}
+ */
 exports.getLocations = function () {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -284,20 +410,3 @@ exports.getLocations = function () {
     });
   });
 };
-
-exports.addPhotoPath = function (id, filename) {
-  return new Promise((resolve, reject) => {
-    const sql = `
-     UPDATE posts
-     SET photoPath = ?
-     WHERE id = ?
-    `;
-
-    db.run(sql, ["public/images/user_images/" + filename, id], (err) => {
-      if (err) {
-        console.log(err.message);
-        reject(err);
-      }
-    });
-  });
-}
