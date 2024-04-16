@@ -27,7 +27,7 @@
           <% if (aut === false) { %>
             <a href="/login" class="btn btn-primary my-2">Login to post pictures</a>
           <% } else { %>
-            <a href="#" class="btn btn-primary my-2">Post a picture</a>
+            <a href="/new-post" class="btn btn-primary my-2">Post a picture</a>
           <% } %>
         </p>
       </div>
@@ -39,6 +39,14 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
       <!-- cards go here -->
+        <% for (let i = 0; i < posts.length && i < 12; i++) { %>
+          <% const post = posts[i]; %>
+          <div class="col-12 col-md-6 mx-auto mb-3">
+            <a href="/posts/<%= post.id %>">
+              <%- include("post-card.ejs", { post: post }) %>
+            </a>
+          </div>
+        <% } %>
 
       </div>
     </div>
