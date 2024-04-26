@@ -42,9 +42,7 @@
         <% for (let i = 0; i < posts.length && i < 12; i++) { %>
           <% const post = posts[i]; %>
           <div class="col-12 col-md-6 mx-auto mb-3">
-            <a href="/posts/<%= post.id %>">
-              <%- include("post-card.ejs", { post: post }) %>
-            </a>
+              <%- include('post-card.ejs', { post: post }) %>
           </div>
         <% } %>
 

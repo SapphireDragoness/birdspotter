@@ -190,7 +190,7 @@ exports.addPost = function (filename, op, bird, location, title, comment) {
     VALUES (null, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(sql, ["public/images/user_images/" + filename, op, bird, location, dateTime, title, comment], (err) => {
+    db.run(sql, ["images/user_images/" + filename, op, bird, location, dateTime, title, comment], (err) => {
       if (err) {
         console.log(err.message);
         reject(err);

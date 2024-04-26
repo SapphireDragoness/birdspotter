@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/webp') {
     cb(null, true);
   } else {
     cb(new Error('Unsupported file type'), false);
@@ -34,7 +34,7 @@ router.get('/', async(req, res) => {
   if(req.isAuthenticated())
     res.render('new-post.ejs', {failure: false, aut: true, type: req.user.type, username: req.user.username});
   else
-    res.render('index', {aut: false, type: false, username: false});
+    res.render('index.ejs', {aut: false, type: false, username: false});
 });
 
 router.post('/', upload.single('image'), [

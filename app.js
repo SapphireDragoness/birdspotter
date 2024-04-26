@@ -13,6 +13,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const userDao = require('./models/user-dao.js');
+const postsDao = require('./models/posts-dao.js');
 
 const requirejs = require('requirejs');
 requirejs.config({
@@ -96,10 +97,12 @@ app.use('/new-post', newPostRouter);
 
 // gets
 app.get('/', async(req, res) => {
+  const posts = await postsDao.getTrendingPosts();
+
   if(req.isAuthenticated())
-    res.render('index', {aut: true, type: req.user.type, username: req.user.username});
+    res.render('index.ejs', {aut: true, type: req.user.type, username: req.user.username, posts});
   else
-    res.render('index', {aut: false, type: false, username: false});
+    res.render('index.ejs', {aut: false, type: false, username: false, posts});
 });
 
 // logout
