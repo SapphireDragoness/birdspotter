@@ -35,13 +35,14 @@
   </section>
 
   <div class="album py-5 bg-light">
+    <h1 class="text-center mb-5">Trending Posts</h1>
     <div class="container">
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
       <!-- cards go here -->
-        <% for (let i = 0; i < posts.length && i < 12; i++) { %>
+        <% for (let i = 0; i < posts.length && i < 16; i++) { %>
           <% const post = posts[i]; %>
-          <div class="col-12 col-md-6 mx-auto mb-3">
+          <div class="col-12 col-md-3 mx-auto mb-3">
               <%- include('post-card.ejs', { post: post }) %>
           </div>
         <% } %>
@@ -59,6 +60,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <!--FontAwesome-->
 <script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
+<!-- Masonry -->
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D" crossorigin="anonymous" async></script>
 
 </body>
 </html>

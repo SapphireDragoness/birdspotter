@@ -25,6 +25,7 @@ requirejs.config({
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
 const newPostRouter = require('./routes/new-post');
+const postRouter = require('./routes/posts')
 // const adminRouter = require('./routes/admin');
 // const userRouter = require('./routes/user');
 
@@ -91,6 +92,7 @@ app.use(passport.session());
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/new-post', newPostRouter);
+app.use('/posts', postRouter);
 
 // request birds
 

@@ -1,10 +1,13 @@
 <div class="card" id="post-card">
     <a href="posts/<%= post.id %>">
-        <img class="card-img-top" src="<%= post.photoPath %>" alt="post image">
+        <img id="card-image" class="card-img-top img-fluid" src="<%= post.photoPath %>" alt="post image">
         <div class="card-body">
-            <h5 class="card-title"> <%= post.title %> </h5>
-            <p class="card-text"><%= post.comment %></p>
-            <p class="card-text"><small class="text-muted"><i class="far fa-user"></i><%= post.op %> <i class="fa-solid fa-dove"></i><%= post.bird %> <i class="fa-solid fa-location-dot"></i><%= post.location %></small></p>
+            <h5 class="card-title text-center"><%= post.title %></h5>
+            <div class="row flex-grow-0">
+                <small class="card-text text-muted align-content-md-start"><i class="far fa-user"></i><%= post.op %></small>
+                <small class="card-text text-muted"><i class="fa-solid fa-dove"></i><%= post.bird %></small>
+                <small class="card-text text-muted"><i class="fa-solid fa-location-dot"></i><%= post.location %></small>
+            </div>
         </div>
     </a>
 </div>

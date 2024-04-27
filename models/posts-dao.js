@@ -5,19 +5,21 @@ const db = require('../db.js');
 /**
  * Function to map database rows to values.
  *
- * @param e
+ * @param post
  * @returns {{date: *, op, photoPath, bird, location, comment: (boolean|*), id, title}}
  */
-function mapPost(e) {
+function mapPost(post) {
   return {
-    id: e.id,
-    photoPath: e.photoPath,
-    op: e.op,
-    bird: e.bird,
-    location: e.location,
-    date: e.date,
-    title: e.title,
-    comment: e.comment
+    id: post.id,
+    photoPath: post.photoPath,
+    op: post.op,
+    bird: post.bird,
+    location: post.location,
+    date: post.date,
+    time: post.time,
+    title: post.title,
+    comment: post.comment,
+    likes: post.likeCount
   };
 }
 
@@ -30,22 +32,40 @@ function mapPost(e) {
 exports.getPostByID = function (id) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM posts
+        SELECT p.*, COALESCE(like_count, 0) AS likeCount
+        FROM posts p
+        LEFT JOIN (
+            SELECT post, COUNT(*) AS like_count
+            FROM likes
+            GROUP BY post
+        ) AS like_counts ON p.id = like_counts.post
       WHERE id = ?
     `;
 
     db.get(sql, [id], (err, row) => {
       if (err)
         reject(err);
-      else
-        resolve(row.map(mapPost));
+      else {
+        const post = {
+          id: row.id,
+          photoPath: row.photoPath,
+          op: row.op,
+          bird: row.bird,
+          location: row.location,
+          date: row.date,
+          time: row.time,
+          title: row.title,
+          comment: row.comment,
+          likes: row.likeCount
+        };
+        resolve(post);
+      }
     });
   });
 };
 
 /**
- * Returns trending posts, enough (9) to fill the homepage.
+ * Returns trending posts, enough (16) to fill the homepage.
  *
  * @returns {Promise<unknown>}
  */
@@ -60,13 +80,14 @@ exports.getTrendingPosts = function () {
           GROUP BY post
       ) AS like_counts ON p.id = like_counts.post
       ORDER BY likeCount DESC
-      LIMIT 9
+      LIMIT 16
     `;
 
     db.all(sql, (err, rows) => {
       if (err) reject(err);
       else {
         let posts = rows.map(mapPost);
+        console.log(posts)
         resolve(posts);
       }
     });
@@ -161,10 +182,10 @@ exports.getAllPostsByLocation = function (location) {
       WHERE location = ?
     `;
 
-    db.all(sql, [location], (err, rows) => {
+    db.all(sql, [location], (err, row) => {
       if (err) reject(err);
       else {
-        let posts = rows.map(mapPost);
+        let posts = row.map(mapPost);
         resolve(posts);
       }
     });
@@ -184,13 +205,12 @@ exports.getAllPostsByLocation = function (location) {
  */
 exports.addPost = function (filename, op, bird, location, title, comment) {
   return new Promise((resolve, reject) => {
-    const dateTime = Date.now();
     const sql = `
-    INSERT INTO posts (id, photoPath, op, bird, location, dateTime, title, comment)
-    VALUES (null, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO posts (id, photoPath, op, bird, location, date, time, title, comment)
+    VALUES (null, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?)
     `;
 
-    db.run(sql, ["images/user_images/" + filename, op, bird, location, dateTime, title, comment], (err) => {
+    db.run(sql, ["images/user_images/" + filename, op, bird, location, title, comment], (err) => {
       if (err) {
         console.log(err.message);
         reject(err);
@@ -407,6 +427,32 @@ exports.getLocations = function () {
         ));
         resolve(locations);
       }
+    });
+  });
+};
+
+/**
+ * Checks if a user liked a post.
+ *
+ * @param username
+ * @param postID
+ * @returns {Promise<unknown>}
+ */
+exports.isPostLikedByUser = function(username, postID) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT *
+      FROM likes
+      WHERE likes.post = ? AND likes.user = ?
+    `;
+
+    db.get(sql, [username, postID], (err, row) => {
+      if(err)
+        reject(err);
+      else if(row === undefined)
+        resolve(false);
+      else
+        resolve(true);
     });
   });
 };

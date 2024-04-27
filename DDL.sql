@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS parks (
 
 CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY NOT NULL,
+    photoPath TEXT,
     op TEXT,
     bird TEXT,
     location TEXT NOT NULL,
     date TEXT NOT NULL,
+    time TEXT NOT NULL,
     title TEXT NOT NULL,
     comment TEXT,
     FOREIGN KEY (op) REFERENCES users(username),
@@ -42,9 +44,12 @@ CREATE TABLE IF NOT EXISTS likes (
 );
 
 CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY,
     user TEXT,
     post INTEGER,
     comment TEXT,
     FOREIGN KEY (user) REFERENCES users(username),
     FOREIGN KEY (post) REFERENCES posts(id)
 );
+
+

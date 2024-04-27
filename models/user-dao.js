@@ -113,7 +113,7 @@ exports.makeAdmin = function(username) {
  */
 exports.revokeAdmin = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET type = ? WHERE username = ?";
+    const sql = `UPDATE user SET type = ? WHERE username = ?`;
 
     db.run(sql, ["user", username], (err) => {
       if(err) reject(err);

@@ -9,15 +9,12 @@ const {check, validationResult} = require('express-validator');
 router.use(express.static(path.join(__dirname, '../public')));
 
 /**
- * Gets and displays posts on home page and search page
+ * Gets and displays posts on search page
  */
 router.get('/', async (req, res) => {
-  if(req.isAuthenticated()){
-    const user = req.user;
-    const postsPerPage = 9;
-    try{
-      // TODO: not a fan of this one
-      const events = await postsDao.getAllPostsByUser(user.username);
+    const postsPerPage = 16;
+    try {
+      const events = await postsDao.getTrendingPosts();
       const page = parseInt(req.query.page) || 1;
       const startIndex = (page - 1) * postsPerPage;
       const endIndex = startIndex + postsPerPage;
@@ -25,14 +22,10 @@ router.get('/', async (req, res) => {
       const totalPages = Math.ceil(events.length / postsPerPage);
 
       res.render('posts.ejs', {currentPage: page, totalPages, postsOnPage, aut:true, type: req.user.type, username: req.user.username});
-    }catch(error){
+    }
+    catch(error) {
       res.render('error.ejs', {message: error});
     }
-
-  }
-  else {
-    res.redirect('/login');
-  }
 });
 
 /**
@@ -46,11 +39,13 @@ router.get('/:postID', async (req, res) => {
     const likes = await postsDao.getNumberOfLikes(postID);
     // TODO: get comments
 
-    if(req.isAuthenticated())
-      res.render('post-page.ejs', {likes, post, username: req.user.username, aut: true, type: req.user.type});
-    // if user isn't authenticated, hide like and comment options
+    if(req.isAuthenticated()) {
+      // if authenticated, check if user liked post
+      const liked = await postsDao.isPostLikedByUser(req.user.username, postID);
+      res.render('post-page.ejs', {likes, post, username: req.user.username, aut: true, type: req.user.type, liked});
+    }
     else
-      res.render('post-page.ejs', {likes, post, aut: false});
+      res.render('post-page.ejs', {likes, post, aut: false, type: false, liked: false});
   }
   catch(error) {
     console.log(error);
