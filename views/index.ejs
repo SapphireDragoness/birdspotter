@@ -24,7 +24,7 @@
         <h1 class="fw-light">Welcome to BirdSpotter!</h1>
         <p class="lead text-muted">A place to share our passion for local wildlife through photography.</p>
         <p>
-          <% if (aut === false) { %>
+          <% if (!aut) { %>
             <a href="/login" class="btn btn-primary my-2">Login to post pictures</a>
           <% } else { %>
             <a href="/new-post" class="btn btn-primary my-2">Post a picture</a>

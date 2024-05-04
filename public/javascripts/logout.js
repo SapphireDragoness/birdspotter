@@ -1,10 +1,10 @@
 'use strict';
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   const logoutLink = document.getElementById('logoutLink');
 
   if (logoutLink) {
-    logoutLink.addEventListener('click', function(e) {
+    logoutLink.addEventListener('click', e => {
       e.preventDefault();
       const form = document.createElement('form');
       form.action = '/logout';
