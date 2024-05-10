@@ -38,17 +38,20 @@ exports.getUserByUsername = function(username) {
     const sql = "SELECT * FROM users WHERE username = ?";
 
     db.get(sql, [username], (err, row) => {
-      if(err) reject(err);
-      else if(row === undefined) resolve({error: "user not found"});
+      if(err)
+        reject(err);
+      else if(row === undefined)
+        resolve({error: "user not found"});
       else {
         const user = {
           firstName: row.firstName,
           lastName: row.lastName,
           email: row.email,
           username: row.username,
-          type: "user"
-        }
-        resolve({user});
+          type: row.type,
+          picture: row.picture
+        };
+        resolve(user);
       }
     });
   });
@@ -77,9 +80,9 @@ exports.getUser = function(username, password) {
               lastName: row.lastName,
               email: row.email,
               username: row.username,
-              type: "user"
+              type: row.type
             };
-            const check = true; // Password verificata con successo
+            const check = true;
             resolve({user, check});
           }
         });
