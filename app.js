@@ -26,8 +26,7 @@ const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
 const newPostRouter = require('./routes/new-post');
 const postRouter = require('./routes/posts')
-// const adminRouter = require('./routes/admin');
-// const userRouter = require('./routes/user');
+const profileRouter = require('./routes/users');
 
 // app creation
 const app = express();
@@ -61,7 +60,8 @@ passport.use('user', new LocalStrategy({usernameField: 'username'}, (username, p
 passport.serializeUser(function(user, done) {
   const serializedUser = {
     username: user.username,
-    type: user.type
+    type: user.type,
+    picture: user.picture
   };
   done(null, serializedUser);
 });
@@ -93,11 +93,8 @@ app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/new-post', newPostRouter);
 app.use('/posts', postRouter);
+//app.use('/user-profile', profileRouter);
 
-// request birds
-
-
-// gets
 app.get('/', async(req, res) => {
   const posts = await postsDao.getTrendingPosts();
 
