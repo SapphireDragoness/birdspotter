@@ -3,6 +3,18 @@
 const db = require('../db.js');
 const bcrypt = require('bcrypt');
 
+function mapUser(user) {
+  return {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    username: user.username,
+    type: user.type,
+    banned: user.banned,
+    picture: user.picture
+  };
+}
+
 /**
  * Registers a user into the database.
  *
@@ -16,9 +28,9 @@ const bcrypt = require('bcrypt');
  */
 exports.registerUser = function (firstName, lastName, email, username, password, type) {
   return new Promise((resolve, reject) => {
-    const sql = "INSERT INTO users (firstName, lastName, email, username, password, type, banned) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO users (firstName, lastName, email, username, password, type, banned, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const values = [firstName, lastName, email, username, hashedPassword, "user", 0];
+    const values = [firstName, lastName, email, username, hashedPassword, "user", 0, "images/user_images/profile_pics/defaultpic.jpg"];
 
     db.run(sql, values, (err) => {
       if(err) reject(err);
@@ -38,19 +50,11 @@ exports.getUserByUsername = function(username) {
     const sql = "SELECT * FROM users WHERE username = ?";
 
     db.get(sql, [username], (err, row) => {
-      if(err)
-        reject(err);
-      else if(row === undefined)
-        resolve({error: "user not found"});
+      if(err) reject(err);
+      else if(row === undefined) resolve({error: "user not found"});
       else {
-        const user = {
-          firstName: row.firstName,
-          lastName: row.lastName,
-          email: row.email,
-          username: row.username,
-          type: row.type,
-          picture: row.picture
-        };
+        const user = mapUser(row);
+        console.log(user)
         resolve(user);
       }
     });
@@ -75,13 +79,8 @@ exports.getUser = function(username, password) {
           if (err) reject(err);
           else if (!isMatch) resolve({ user: true, check: false});
           else {
-            const user = {
-              firstName: row.firstName,
-              lastName: row.lastName,
-              email: row.email,
-              username: row.username,
-              type: row.type
-            };
+            const user = mapUser(row);
+            console.log(user)
             const check = true;
             resolve({user, check});
           }
@@ -101,10 +100,10 @@ exports.makeAdmin = function(username) {
   return new Promise((resolve, reject) => {
     const sql = "UPDATE user SET type = ? WHERE username = ?";
 
-    db.run(sql, ["admin", username]), (err) => {
+    db.run(sql, ["admin", username], (err) => {
       if(err) reject(err);
       else resolve();
-    }
+    });
   });
 };
 

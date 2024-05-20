@@ -40,13 +40,6 @@
     width:100%;
     margin:0 auto;
 }
-.objectFit {
-    object-fit:cover;
-    width:100%;
-    max-width:320px;
-    min-height:70vh;
-    margin:0 auto
-}
 #showCursor {
     cursor:pointer
 }

@@ -1,39 +1,57 @@
-<header class="p-3 bg-dark text-white">
-    <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><img src="images/site-logo.png" alt="Bird Logo" height="38" ></li>
-                <li><a href="/" class="nav-link px-2 text-white">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                <li><a href="https://avibase.bsc-eoc.org/checklist.jsp?region=ITpi" class="nav-link px-2 text-white">Bird Database</a></li>
+<nav class="navbar bg-dark border-bottom border-body navbar-expand-lg" data-bs-theme="dark">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+                aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="/"><img src="images/site-logo.png" alt="Bird Logo" height="38"></a>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a href="#" aria-current="page" class="nav-link px-2 text-white">FAQs</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" aria-current="page" class="nav-link px-2 text-white">Contact Us</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://avibase.bsc-eoc.org/checklist.jsp?region=ITpi" aria-current="page"
+                       class="nav-link px-2 text-white">Bird Database</a>
+                </li>
             </ul>
-
-            <form class="d-flex col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <select class="form-select-dark form-select-sm" aria-label="Search selection">
-                    <option selected>General</option>
-                    <option value="birds">Birds</option>
-                    <option value="authors">Authors</option>
-                    <option value="location">Location</option>
-                    <option value="date">Date</option>
-                </select>
-                <input type="search" class="form-control form-control-dark" placeholder="Search posts..." aria-label="Search posts...">
-            </form>
-
-            <div class="text-end">
+            <div class="col-md-8">
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-primary" type="submit"><i class="fa-solid fa-search"></i></button>
+                </form>
+            </div>
+            <div class="mx-2">
                 <!-- checks if user is authenticated and displays the correct navbar -->
-                <% if (aut === false) { %>
-                    <a href="/login"><button type="button" class="btn btn-outline-light me-2"><i class="fa-solid fa-right-to-bracket"></i> Login</button></a>
-                    <a href="/register"><button type="button" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Sign-up</button></a>
+                <% if (!aut) { %>
+                    <a href="/login">
+                        <button type="button" class="btn btn-outline-light me-2"><i
+                                    class="fa-solid fa-right-to-bracket"></i> Login
+                        </button>
+                    </a>
+                    <a href="/register">
+                        <button type="button" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Sign-up
+                        </button>
+                    </a>
                 <% } else { %>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                             Welcome, <%= username %> !
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/new-post"><i class="fa-solid fa-camera"></i> Add photo</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout" id="logoutLink"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="/new-post"><i class="fa-solid fa-camera"></i> Add
+                                    photo</a></li>
+                            <li><a class="dropdown-item" href="/users/<%= username %>"><i class="fa-solid fa-user"></i>
+                                    Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/logout" id="logoutLink"><i
+                                            class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
                         </ul>
                     </div>
 
@@ -41,7 +59,7 @@
             </div>
         </div>
     </div>
-</header>
+</nav>
 
 <script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
 <script src="javascripts/logout.js"></script>

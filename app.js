@@ -42,8 +42,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// session management
+app.use(session({
+  secret: 'birds are dinosaurs',
+  resave: false,
+  saveUninitialized: false
+}));
+
+//passport initialization
+app.use(passport.session());
+
 // passport setup
-passport.use('user', new LocalStrategy({usernameField: 'username'}, (username, password, done) => {
+passport.use(new LocalStrategy({usernameField: 'username', passwordField: 'password'}, (username, password, done) => {
     userDao.getUser(username, password).then(({user, check}) => {
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
@@ -58,18 +68,12 @@ passport.use('user', new LocalStrategy({usernameField: 'username'}, (username, p
 
 // user serialization and deserialization
 passport.serializeUser(function(user, done) {
-  const serializedUser = {
-    username: user.username,
-    type: user.type,
-    picture: user.picture
-  };
-  done(null, serializedUser);
+  done(null, user);
 });
 
-passport.deserializeUser(function(serializedUser, done) {
-  userDao.getUserByUsername(serializedUser.username)
-    .then(({ user, error }) => {
-      if (error) return done(error);
+passport.deserializeUser(function(user, done) {
+  userDao.getUserByUsername(user.username)
+    .then((user) => {
       done(null, user);
     })
     .catch((err) => {
@@ -77,23 +81,12 @@ passport.deserializeUser(function(serializedUser, done) {
     });
 });
 
-// session management
-app.use(session({
-  secret: 'birds are dinosaurs',
-  resave: false,
-  saveUninitialized: false
-}));
-
-//passport initialization
-app.use(passport.initialize());
-app.use(passport.session());
-
 // route management
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/new-post', newPostRouter);
 app.use('/posts', postRouter);
-//app.use('/user-profile', profileRouter);
+app.use('/users', profileRouter);
 
 app.get('/', async(req, res) => {
   const posts = await postsDao.getTrendingPosts();

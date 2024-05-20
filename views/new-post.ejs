@@ -11,14 +11,14 @@
     <title>BirdSpotter</title>
 
 </head>
-<body class="d-flex flex-column h-100">
+<body class="d-flex flex-column min-vh-100">
 
 <!-- Navbar -->
 <%- include('navbar.ejs', {type}) %>
 
 <main class="flex-shrink-0">
 
-    <div class="min-vh-100 d-flex align-items-center">
+    <div class="mb-4 mt-4 p-5 d-flex align-items-center">
         <div class="container">
             <div class="row">
                 <div class="col-sm-7 mx-auto">
@@ -46,7 +46,8 @@
                                             <input type="text" id="title" class="pb-1" placeholder="A captivating title" name="title"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
-                                            <label for="image" class="text-uppercase">Upload image</label>
+                                            <label for="image" class="text-uppercase">Image
+                                                (recommended size: 1000x1000 px)</label>
                                             <input class="form-control" type="file" id="image" name="image"><span class="pb-1"></span>
                                         </div>
                                         <div class="autocomplete custom-form-group mt-3">

@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const postsDao = require('../models/posts-dao');
-const {check, validationResult} = require('express-validator');
 
 router.use(express.static(path.join(__dirname, '../public')));
 
@@ -45,7 +44,7 @@ router.get('/:postID', async (req, res) => {
       res.render('post-page.ejs', {likes, post, username: req.user.username, aut: true, type: req.user.type, liked});
     }
     else
-      res.render('post-page.ejs', {likes, post, aut: false, type: false, liked: false});
+      res.render('post-page.ejs', {likes, post, aut: false, type: false});
   }
   catch(error) {
     console.log(error);
@@ -62,6 +61,25 @@ router.post('/:postID/remove', async (req, res) => {
   }
   catch(error) {
     res.render('error.ejs', {message: 'removal error'});
+  }
+});
+
+router.post('/:postID/like', async (req, res) => {
+  try {
+    const { username } = req.body;
+    await postsDao.addLike(username, req.params.postID);
+  }
+  catch(error) {
+    res.render('error.ejs', {message: 'like error'});
+  }
+});
+
+router.post('/:postID/unlike', async (req, res) => {
+  try {
+    await postsDao.removeLike(req.params.username, req.params.postID);
+  }
+  catch(error) {
+    res.render('error.ejs', {message: 'like error'});
   }
 });
 

@@ -1,0 +1,42 @@
+.mynav {
+    color: #fff;
+}
+
+.mynav li a {
+    color: #fff;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    padding: 10px 10px;
+}
+
+.mynav li a.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mynav li a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mynav li a i {
+    width: 25px;
+    text-align: center;
+}
+
+#bdSidebar {
+    width: 15%;
+}
+
+@media only screen and (max-width: 650px) {
+    .mynav li a span {
+        visibility: collapse;
+    }
+    .mynav li a {
+        width: 75%;
+        padding: 0;
+    }
+    .mynav li {
+        display: flex;
+    }
+}

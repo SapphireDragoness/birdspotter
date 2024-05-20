@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', function (req, res, next) {
-  passport.authenticate('user', function (err, user, info) {
+  passport.authenticate('local', function (err, user, info) {
     if(err) return next(err);
     // user not found
     if(!user) {
@@ -29,9 +29,9 @@ router.post('/', function (req, res, next) {
       });
     }
     else {
-      console.log('user ' + user.username + ' authenticated')
       req.login(user, function (err) {
         if (err) return next(err);
+        console.log('user ' + user.username + ' authenticated')
         res.redirect('/');
       });
     }
