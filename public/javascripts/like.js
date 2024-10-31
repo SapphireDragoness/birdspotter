@@ -1,29 +1,19 @@
-'use strict'
+$(document).ready(function() {
+  $('#like-button').on('click', function() {
+    const liked = $(this).data('liked');
+    const url = liked ? `/posts/${postID}/unlike` : `/posts/${postID}/like`;
 
-async function addLike(username, post) {
-  try {
-    await fetch(`${post}/like`, {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username: username })
-    });
-    let likesElement = document.querySelector(`#post_${post} .likes`);
-    console.log(likesElement)
-    likesElement.textContent = newLikes.toString();
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
+    $.post(url, { username: username })
+      .done(() => {
+        $(this).data('liked', !liked);
+        const newLabel = liked ? '<i class="fa-regular fa-heart"></i>' : '<i class="fa-solid fa-heart"></i>';
+        $(this).html(newLabel);
 
-async function removeLike(post) {
-  try {
-    await fetch(`${post}/unlike`, {
-      method: "POST"
-    });
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
-
+        const currentCount = parseInt($('#like-count').text());
+        $('#like-count').text(liked ? currentCount - 1 : currentCount + 1);
+      })
+      .fail(() => {
+        alert("Error updating likes (at like.js)");
+      });
+  });
+});

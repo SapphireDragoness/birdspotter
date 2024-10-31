@@ -55,3 +55,15 @@
 .btn-light i {
     color: red;
 }
+
+.fa-heart {
+    color: red;
+    text-shadow: 1px 1px 1px #ccc;
+    font-size: 1.5em;
+}
+
+.fa-bookmark {
+    color: chocolate;
+    text-shadow: 1px 1px 1px #ccc;
+    font-size: 1.5em;
+}

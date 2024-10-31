@@ -265,49 +265,45 @@ exports.getNumberOfLikes = function (id) {
 };
 
 /**
- * Updates an existing post.
+ * Updates a post. For practical reasons, only title, comment, bird and location can be edited.
  *
- * @param bird
- * @param location
+ * @param postID
+ * @param username
  * @param title
  * @param comment
+ * @param bird
+ * @param location
  * @returns {Promise<unknown>}
  */
-exports.updatePost = function (bird, location, title, comment) {
+exports.updatePost = function(postID, username, title, comment, bird, location) {
   return new Promise((resolve, reject) => {
     const sql = `
-      UPDATE posts SET bird = ?, location = ?, title = ?, comment = ? 
-      WHERE id = ?
+        UPDATE posts
+        SET title = ?, comment = ?, bird = ?, location = ?
+        WHERE id = ? AND op = ?
     `;
 
-    db.run(sql, [bird, location, title, comment], (err) => {
-      if (err)
-        reject(err);
-      else
-        resolve();
+    db.run(sql, [title, comment, bird, location, postID, username], function(err) {
+      if (err) reject(err);
+      else resolve(this.changes);
     });
   });
 };
 
+
 /**
  * Adds a like to a post.
  *
- * @param user
- * @param post
+ * @param username
+ * @param postID
  * @returns {Promise<unknown>}
  */
-exports.addLike = function (user, post) {
+exports.addLike = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `
-      INSERT INTO likes (user, post) 
-      VALUES (?, ?)
-    `;
-
-    db.run(sql, [user, post], (err) => {
-      if (err)
-        reject(err);
-      else
-        resolve();
+    const sql = `INSERT OR IGNORE INTO likes (user, post) VALUES (?, ?)`;
+    db.run(sql, [username, postID], function(err) {
+      if (err) reject(err);
+      else resolve();
     });
   });
 };
@@ -315,68 +311,16 @@ exports.addLike = function (user, post) {
 /**
  * Removes a like from a post.
  *
- * @param user
- * @param post
+ * @param username
+ * @param postID
  * @returns {Promise<unknown>}
  */
-exports.removeLike = function (user, post) {
+exports.removeLike = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `
-      DELETE FROM likes
-      WHERE likes.user = ? AND likes.post = ?
-    `;
-
-    db.run(sql, [user, post], (err) => {
-      if (err)
-        reject(err);
-      else
-        resolve();
-    });
-  });
-};
-
-/**
- * Adds a comment to a post.
- *
- * @param user
- * @param comment
- * @returns {Promise<unknown>}
- */
-exports.addComment = function (user, comment) {
-  return new Promise((resolve, reject) => {
-    const sql = `
-      INSERT INTO comments (user, post)
-      VALUES (?, ?)
-    `;
-
-    db.run(sql, [user, comment], (err) => {
-      if (err)
-        reject(err);
-      else
-        resolve();
-    });
-  });
-};
-
-/**
- * Removes a comment from a post.
- *
- * @param user
- * @param comment
- * @returns {Promise<unknown>}
- */
-exports.removeComment = function (user, comment) {
-  return new Promise((resolve, reject) => {
-    const sql = `
-      DELETE FROM comments
-      WHERE comments.user = ? AND comments.post = ?
-    `;
-
-    db.run(sql, [user, comment], (err) => {
-      if (err)
-        reject(err);
-      else
-        resolve();
+    const sql = `DELETE FROM likes WHERE user = ? AND post = ?`;
+    db.run(sql, [username, postID], function(err) {
+      if (err) reject(err);
+      else resolve();
     });
   });
 };
@@ -446,13 +390,183 @@ exports.isPostLikedByUser = function(username, postID) {
       WHERE likes.post = ? AND likes.user = ?
     `;
 
-    db.get(sql, [username, postID], (err, row) => {
+    db.get(sql, [postID, username], (err, row) => {
       if(err)
         reject(err);
       else if(row === undefined)
         resolve(false);
       else
         resolve(true);
+    });
+  });
+};
+
+/**
+ * Checks if a user saved a post.
+ *
+ * @param username
+ * @param postID
+ * @returns {Promise<unknown>}
+ */
+exports.isPostSavedByUser = function(username, postID) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT *
+      FROM saved
+      WHERE saved.post = ? AND saved.user = ?
+    `;
+
+    db.get(sql, [postID, username], (err, row) => {
+      if(err)
+        reject(err);
+      else if(row === undefined)
+        resolve(false);
+      else
+        resolve(true);
+    });
+  });
+};
+
+/**
+ * Gets all posts liked by a specific user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.getPostsLikedByUser = function(username) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT posts.*
+        FROM likes
+        JOIN posts ON likes.post = posts.id
+        WHERE likes.user = ?;
+    `;
+
+    db.all(sql, [username], (err, rows) => {
+      if (err) reject(err);
+      else {
+        let posts = rows.map(mapPost);
+        resolve(posts);
+      }
+    });
+  });
+};
+
+/**
+ * Gets all comments on a post and relative usernames.
+ *
+ * @param postID
+ * @returns {Promise<unknown>}
+ */
+exports.getCommentsByPostID = function(postID) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT comments.id, comments.comment, comments.user, users.username
+        FROM comments
+                 JOIN users ON comments.user = users.username
+        WHERE comments.post = ?;
+    `;
+
+    db.all(sql, [postID], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+/**
+ * Adds a comment to the database.
+ *
+ * @param postID
+ * @param username
+ * @param content
+ * @returns {Promise<unknown>}
+ */
+exports.addComment = function(postID, username, content) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        INSERT INTO comments (post, user, comment) VALUES (?, ?, ?);
+    `;
+    db.run(sql, [postID, username, content], function(err) {
+      if (err) reject(err);
+      else resolve({
+        id: this.lastID,
+        post: postID,
+        user: username,
+        comment: content
+      });
+    });
+  });
+};
+
+/**
+ * Removes a comment from the database.
+ *
+ * @param commentID
+ * @returns {Promise<unknown>}
+ */
+exports.removeComment = function(commentID) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        DELETE FROM comments WHERE id = ?;
+    `;
+    db.run(sql, [commentID], function(err) {
+      if (err) reject(err);
+      else resolve({ message: 'Comment deleted successfully.', commentID });
+    });
+  });
+};
+
+/**
+ * Gets all posts saved by user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.getSavedPosts = function(username) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT posts.*
+      FROM saved
+      JOIN posts ON saved.post = posts.id
+      WHERE saved.user = ?`;
+    db.all(sql, [username], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+/**
+ * Saves a post for a user.
+ *
+ * @param username
+ * @param postID
+ * @returns {Promise<unknown>}
+ */
+exports.addSave = function (username, postID) {
+  return new Promise((resolve, reject) => {
+    const sql = `INSERT OR IGNORE INTO saved (user, post) VALUES (?, ?)`;
+    db.run(sql, [username, postID], function(err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+/**
+ * Removes a saved post for a user.
+ *
+ * @param username
+ * @param postID
+ * @returns {Promise<unknown>}
+ */
+exports.removeSave = function (username, postID) {
+  return new Promise((resolve, reject) => {
+    const sql = `DELETE FROM saved WHERE user = ? AND post = ?`;
+    db.run(sql, [username, postID], function(err) {
+      if (err) reject(err);
+      else resolve();
     });
   });
 };
