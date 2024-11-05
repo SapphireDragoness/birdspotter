@@ -34,12 +34,10 @@ exports.getPostByID = function (id) {
     const sql = `
         SELECT p.*, COALESCE(like_count, 0) AS likeCount
         FROM posts p
-        LEFT JOIN (
-            SELECT post, COUNT(*) AS like_count
-            FROM likes
-            GROUP BY post
-        ) AS like_counts ON p.id = like_counts.post
-      WHERE id = ?
+                 LEFT JOIN (SELECT post, COUNT(*) AS like_count
+                            FROM likes
+                            GROUP BY post) AS like_counts ON p.id = like_counts.post
+        WHERE id = ?
     `;
 
     db.get(sql, [id], (err, row) => {
@@ -72,22 +70,19 @@ exports.getPostByID = function (id) {
 exports.getTrendingPosts = function () {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT p.*, COALESCE(like_count, 0) AS likeCount
-      FROM posts p
-      LEFT JOIN (
-          SELECT post, COUNT(*) AS like_count
-          FROM likes
-          GROUP BY post
-      ) AS like_counts ON p.id = like_counts.post
-      ORDER BY likeCount DESC
-      LIMIT 16
+        SELECT p.*, COALESCE(like_count, 0) AS likeCount
+        FROM posts p
+                 LEFT JOIN (SELECT post, COUNT(*) AS like_count
+                            FROM likes
+                            GROUP BY post) AS like_counts ON p.id = like_counts.post
+        ORDER BY likeCount DESC
+        LIMIT 16
     `;
 
     db.all(sql, (err, rows) => {
       if (err) reject(err);
       else {
         let posts = rows.map(mapPost);
-        console.log(posts)
         resolve(posts);
       }
     });
@@ -98,24 +93,147 @@ exports.getTrendingPosts = function () {
  * Returns all posts that somehow match the search string (using the LIKE sql function).
  *
  * @param searchString
+ * @param offset
+ * @param limit
  * @returns {Promise<unknown>}
  */
-exports.getAllPostsGeneralSearch = function (searchString) {
+exports.getAllPostsGeneralSearch = function (searchString, limit, offset) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM posts
-      WHERE op LIKE ?
-          OR bird LIKE ?
-          OR location LIKE ?
+        SELECT *
+        FROM posts
+        WHERE op LIKE ?
+           OR bird LIKE ?
+           OR location LIKE ?
+           OR title LIKE ?
+        LIMIT ? OFFSET ?
+    `;
+    db.all(sql, [`%${searchString}%`, `%${searchString}%`, `%${searchString}%`, `%${searchString}%`, limit, offset], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows.map(mapPost));
+    });
+  });
+};
+
+/**
+ * Returns all posts that match the parameters given
+ *
+ * @param title
+ * @param username
+ * @param bird
+ * @param location
+ * @param startDate
+ * @param endDate
+ * @param limit
+ * @param offset
+ * @returns {Promise<unknown>}
+ */
+exports.advancedSearch = function (title, username, bird, location, startDate, endDate, limit, offset) {
+  return new Promise((resolve, reject) => {
+    let sql = `
+        SELECT *
+        FROM posts
+        WHERE (op LIKE ? OR ? IS NULL)
+          AND (title LIKE ? OR ? IS NULL)
+          AND (bird LIKE ? OR ? IS NULL)
+          AND (location LIKE ? OR ? IS NULL)
     `;
 
-    db.all(sql, (err, rows) => {
+    const params = [
+      `%${username || ''}%`, username,
+      `%${title || ''}%`, title,
+      `%${bird || ''}%`, bird,
+      `%${location || ''}%`, location,
+    ];
+
+    if (startDate) {
+      sql += ` AND date >= ?`;
+      params.push(startDate);
+    }
+    if (endDate) {
+      sql += ` AND date <= ?`;
+      params.push(endDate);
+    }
+
+    params.push(limit)
+    params.push(offset)
+
+    sql += `LIMIT ? OFFSET ?`
+
+    console.log('I\'m about to call the db. I\'ve received: ' + params)
+
+    db.all(sql, params, (err, rows) => {
       if (err) reject(err);
-      else {
-        let posts = rows.map(mapPost);
-        resolve(posts);
-      }
+      else resolve(rows.map(mapPost));
+    });
+  });
+};
+
+/**
+ * Counts the number of posts returned for a query
+ *
+ * @param searchString
+ * @returns {Promise<unknown>}
+ */
+exports.getTotalPostsCount = function (searchString) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT COUNT(*) AS count
+        FROM posts
+        WHERE op LIKE ?
+           OR bird LIKE ?
+           OR location LIKE ?
+           OR title LIKE ?
+    `;
+
+    db.get(sql, [`%${searchString}%`, `%${searchString}%`, `%${searchString}%`, `%${searchString}%`], (err, row) => {
+      if (err) reject(err);
+      else resolve(row.count);
+    });
+  });
+};
+
+/**
+ * Counts the number of posts returned for a query... but advanced
+ *
+ * @returns {Promise<unknown>}
+ * @param title
+ * @param username
+ * @param bird
+ * @param location
+ * @param startDate
+ * @param endDate
+ */
+exports.getTotalPostsCountAdvanced = function (title, username, bird, location, startDate, endDate) {
+  return new Promise((resolve, reject) => {
+    let sql = `
+        SELECT COUNT(*) AS count
+        FROM posts
+        WHERE (op LIKE ? OR ? IS NULL)
+          AND (title LIKE ? OR ? IS NULL)
+          AND (bird LIKE ? OR ? IS NULL)
+          AND (location LIKE ? OR ? IS NULL)
+    `;
+
+    const params = [
+      `%${username || ''}%`, username,
+      `%${title || ''}%`, title,
+      `%${bird || ''}%`, bird,
+      `%${location || ''}%`, location
+    ];
+
+    if (startDate) {
+      sql += ` AND date >= ?`;
+      params.push(startDate);
+    }
+    if (endDate) {
+      sql += ` AND date <= ?`;
+      params.push(endDate);
+    }
+
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row.count);
     });
   });
 };
@@ -129,9 +247,9 @@ exports.getAllPostsGeneralSearch = function (searchString) {
 exports.getAllPostsByUser = function (username) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM posts 
-      WHERE op = ?
+        SELECT *
+        FROM posts
+        WHERE op = ?
     `;
 
     db.all(sql, [username], (err, rows) => {
@@ -153,9 +271,9 @@ exports.getAllPostsByUser = function (username) {
 exports.getAllPostsByBird = function (bird) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM posts 
-      WHERE bird = ?
+        SELECT *
+        FROM posts
+        WHERE bird = ?
     `;
 
     db.all(sql, [bird], (err, rows) => {
@@ -177,9 +295,9 @@ exports.getAllPostsByBird = function (bird) {
 exports.getAllPostsByLocation = function (location) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM posts 
-      WHERE location = ?
+        SELECT *
+        FROM posts
+        WHERE location = ?
     `;
 
     db.all(sql, [location], (err, row) => {
@@ -206,22 +324,21 @@ exports.getAllPostsByLocation = function (location) {
 exports.addPost = function (filename, op, bird, location, title, comment) {
   return new Promise((resolve, reject) => {
     const sql = `
-    INSERT INTO posts (id, photoPath, op, bird, location, date, time, title, comment)
-    VALUES (null, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?)
+        INSERT INTO posts (id, photoPath, op, bird, location, date, time, title, comment)
+        VALUES (null, ?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME, ?, ?)
     `;
 
     db.run(sql, ["images/user_images/" + filename, op, bird, location, title, comment], (err) => {
       if (err) {
         console.log(err.message);
         reject(err);
-      }
-      else resolve();
+      } else resolve();
     });
   });
 };
 
 /**
- * Removes a post from the database.
+ * Removes a post from the database. Rollbacks on error.
  *
  * @param id
  * @returns {Promise<unknown>}
@@ -229,18 +346,24 @@ exports.addPost = function (filename, op, bird, location, title, comment) {
 exports.removePost = function (id) {
   return new Promise((resolve, reject) => {
     const sql = `
-      DELETE FROM posts
-      WHERE posts.id = ?
+      BEGIN TRANSACTION;
+      DELETE FROM comments WHERE post_id = ?;
+      DELETE FROM likes WHERE post_id = ?;
+      DELETE FROM posts WHERE id = ?;
+      COMMIT;
     `;
 
-    db.run(sql, [id], (err, rows) => {
-      if (err)
+    db.run(sql, [id, id, id], (err) => {
+      if (err) {
+        db.run("ROLLBACK");
         reject(err);
-      else
+      } else {
         resolve();
+      }
     });
   });
 };
+
 
 /**
  * Returns the number of likes on a post.
@@ -251,9 +374,10 @@ exports.removePost = function (id) {
 exports.getNumberOfLikes = function (id) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT COUNT(*) AS total
-      FROM likes JOIN users ON likes.user = users.username 
-      WHERE post = ?
+        SELECT COUNT(*) AS total
+        FROM likes
+                 JOIN users ON likes.user = users.username
+        WHERE post = ?
     `;
 
     db.get(sql, [id], (err, row) => {
@@ -275,15 +399,19 @@ exports.getNumberOfLikes = function (id) {
  * @param location
  * @returns {Promise<unknown>}
  */
-exports.updatePost = function(postID, username, title, comment, bird, location) {
+exports.updatePost = function (postID, username, title, comment, bird, location) {
   return new Promise((resolve, reject) => {
     const sql = `
         UPDATE posts
-        SET title = ?, comment = ?, bird = ?, location = ?
-        WHERE id = ? AND op = ?
+        SET title    = ?,
+            comment  = ?,
+            bird     = ?,
+            location = ?
+        WHERE id = ?
+          AND op = ?
     `;
 
-    db.run(sql, [title, comment, bird, location, postID, username], function(err) {
+    db.run(sql, [title, comment, bird, location, postID, username], function (err) {
       if (err) reject(err);
       else resolve(this.changes);
     });
@@ -300,8 +428,9 @@ exports.updatePost = function(postID, username, title, comment, bird, location) 
  */
 exports.addLike = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `INSERT OR IGNORE INTO likes (user, post) VALUES (?, ?)`;
-    db.run(sql, [username, postID], function(err) {
+    const sql = `INSERT OR IGNORE INTO likes (user, post)
+                 VALUES (?, ?)`;
+    db.run(sql, [username, postID], function (err) {
       if (err) reject(err);
       else resolve();
     });
@@ -317,8 +446,11 @@ exports.addLike = function (username, postID) {
  */
 exports.removeLike = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `DELETE FROM likes WHERE user = ? AND post = ?`;
-    db.run(sql, [username, postID], function(err) {
+    const sql = `DELETE
+                 FROM likes
+                 WHERE user = ?
+                   AND post = ?`;
+    db.run(sql, [username, postID], function (err) {
       if (err) reject(err);
       else resolve();
     });
@@ -333,14 +465,14 @@ exports.removeLike = function (username, postID) {
 exports.getBirds = function () {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT speciesName
-      FROM birds
+        SELECT speciesName
+        FROM birds
     `;
 
     db.all(sql, (err, rows) => {
       if (err) reject(err);
       else {
-        let birds = rows.map((e) =>({
+        let birds = rows.map((e) => ({
             bird: e.speciesName
           }
         ));
@@ -358,14 +490,14 @@ exports.getBirds = function () {
 exports.getLocations = function () {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT name
-      FROM parks
+        SELECT name
+        FROM parks
     `;
 
     db.all(sql, (err, rows) => {
       if (err) reject(err);
       else {
-        let locations = rows.map((e) =>({
+        let locations = rows.map((e) => ({
             location: e.name
           }
         ));
@@ -382,18 +514,19 @@ exports.getLocations = function () {
  * @param postID
  * @returns {Promise<unknown>}
  */
-exports.isPostLikedByUser = function(username, postID) {
+exports.isPostLikedByUser = function (username, postID) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM likes
-      WHERE likes.post = ? AND likes.user = ?
+        SELECT *
+        FROM likes
+        WHERE likes.post = ?
+          AND likes.user = ?
     `;
 
     db.get(sql, [postID, username], (err, row) => {
-      if(err)
+      if (err)
         reject(err);
-      else if(row === undefined)
+      else if (row === undefined)
         resolve(false);
       else
         resolve(true);
@@ -408,18 +541,19 @@ exports.isPostLikedByUser = function(username, postID) {
  * @param postID
  * @returns {Promise<unknown>}
  */
-exports.isPostSavedByUser = function(username, postID) {
+exports.isPostSavedByUser = function (username, postID) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT *
-      FROM saved
-      WHERE saved.post = ? AND saved.user = ?
+        SELECT *
+        FROM saved
+        WHERE saved.post = ?
+          AND saved.user = ?
     `;
 
     db.get(sql, [postID, username], (err, row) => {
-      if(err)
+      if (err)
         reject(err);
-      else if(row === undefined)
+      else if (row === undefined)
         resolve(false);
       else
         resolve(true);
@@ -433,12 +567,12 @@ exports.isPostSavedByUser = function(username, postID) {
  * @param username
  * @returns {Promise<unknown>}
  */
-exports.getPostsLikedByUser = function(username) {
+exports.getPostsLikedByUser = function (username) {
   return new Promise((resolve, reject) => {
     const sql = `
         SELECT posts.*
         FROM likes
-        JOIN posts ON likes.post = posts.id
+                 JOIN posts ON likes.post = posts.id
         WHERE likes.user = ?;
     `;
 
@@ -458,7 +592,7 @@ exports.getPostsLikedByUser = function(username) {
  * @param postID
  * @returns {Promise<unknown>}
  */
-exports.getCommentsByPostID = function(postID) {
+exports.getCommentsByPostID = function (postID) {
   return new Promise((resolve, reject) => {
     const sql = `
         SELECT comments.id, comments.comment, comments.user, users.username
@@ -482,12 +616,13 @@ exports.getCommentsByPostID = function(postID) {
  * @param content
  * @returns {Promise<unknown>}
  */
-exports.addComment = function(postID, username, content) {
+exports.addComment = function (postID, username, content) {
   return new Promise((resolve, reject) => {
     const sql = `
-        INSERT INTO comments (post, user, comment) VALUES (?, ?, ?);
+        INSERT INTO comments (post, user, comment)
+        VALUES (?, ?, ?);
     `;
-    db.run(sql, [postID, username, content], function(err) {
+    db.run(sql, [postID, username, content], function (err) {
       if (err) reject(err);
       else resolve({
         id: this.lastID,
@@ -505,14 +640,16 @@ exports.addComment = function(postID, username, content) {
  * @param commentID
  * @returns {Promise<unknown>}
  */
-exports.removeComment = function(commentID) {
+exports.removeComment = function (commentID) {
   return new Promise((resolve, reject) => {
     const sql = `
-        DELETE FROM comments WHERE id = ?;
+        DELETE
+        FROM comments
+        WHERE id = ?;
     `;
-    db.run(sql, [commentID], function(err) {
+    db.run(sql, [commentID], function (err) {
       if (err) reject(err);
-      else resolve({ message: 'Comment deleted successfully.', commentID });
+      else resolve({message: 'Comment deleted successfully.', commentID});
     });
   });
 };
@@ -523,13 +660,13 @@ exports.removeComment = function(commentID) {
  * @param username
  * @returns {Promise<unknown>}
  */
-exports.getSavedPosts = function(username) {
+exports.getSavedPosts = function (username) {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT posts.*
-      FROM saved
-      JOIN posts ON saved.post = posts.id
-      WHERE saved.user = ?`;
+        SELECT posts.*
+        FROM saved
+                 JOIN posts ON saved.post = posts.id
+        WHERE saved.user = ?`;
     db.all(sql, [username], (err, rows) => {
       if (err) reject(err);
       else resolve(rows);
@@ -546,8 +683,9 @@ exports.getSavedPosts = function(username) {
  */
 exports.addSave = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `INSERT OR IGNORE INTO saved (user, post) VALUES (?, ?)`;
-    db.run(sql, [username, postID], function(err) {
+    const sql = `INSERT OR IGNORE INTO saved (user, post)
+                 VALUES (?, ?)`;
+    db.run(sql, [username, postID], function (err) {
       if (err) reject(err);
       else resolve();
     });
@@ -563,8 +701,11 @@ exports.addSave = function (username, postID) {
  */
 exports.removeSave = function (username, postID) {
   return new Promise((resolve, reject) => {
-    const sql = `DELETE FROM saved WHERE user = ? AND post = ?`;
-    db.run(sql, [username, postID], function(err) {
+    const sql = `DELETE
+                 FROM saved
+                 WHERE user = ?
+                   AND post = ?`;
+    db.run(sql, [username, postID], function (err) {
       if (err) reject(err);
       else resolve();
     });

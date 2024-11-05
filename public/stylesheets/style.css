@@ -56,4 +56,11 @@
 
 #card-image {
     max-height: 300px;
+    max-width: 350px;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

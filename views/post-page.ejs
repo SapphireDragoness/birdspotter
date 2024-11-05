@@ -12,7 +12,7 @@
     <title>BirdSpotter - Post</title>
     <script>
       const postID = "<%= post.id %>";
-      const username = "<%= username %>";
+      const username = "<%= currentUser.username %>";
     </script>
 </head>
 <body class="d-flex flex-column h-100">
@@ -40,7 +40,7 @@
                                     <h1 class="me-auto"><%= post.title %></h1>
                                 </div>
                                 <h5 class="text-muted">posted by <a class="text-decoration-none"
-                                                                    href=""><%= post.op %></a></h5>
+                                                                    href="/users/<%=post.op%>/posts"><%= post.op %></a></h5>
                                 <div class="row flex-grow-0 p-1">
                                     <small class="card-text text-muted"><i
                                                 class="fa-solid fa-calendar"></i><%= post.date %></small>
@@ -142,10 +142,10 @@
 <!-- Jquery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Script for like functionality -->
-<script src="javascripts/like.js"></script>
+<script src="../javascripts/like.js"></script>
 <!-- Script for save functionality -->
-<script src="javascripts/saved.js"></script>
+<script src="../javascripts/saved.js"></script>
 <!-- Script for comment functionality -->
-<script src="javascripts/comment.js"></script>
+<script src="../javascripts/comment.js"></script>
 </body>
 </html>

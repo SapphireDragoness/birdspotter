@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Home page">
+    <!-- custom CSS -->
+    <link href="/stylesheets/style.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>BirdSpotter</title>
+</head>
+<body class="d-flex flex-column h-100">
+
+<!-- Navbar -->
+<%- include('navbar.ejs') %>
+
+<main class="flex-shrink-0 min-vh-100">
+
+    <div class="album py-5">
+        <h1 class="text-center mb-5">Search results</h1>
+        <div class="container">
+            <!-- sorting -->
+            <% if (posts.length !== 0) { %>
+            <div class="mt-5 d-flex justify-content-center">
+                <button class="btn btn-primary me-1" type="button" data-bs-toggle="collapse" data-bs-target="#sorting" aria-expanded="false">
+                    <i class="fa-solid fa-filter me-2"></i>Sorting
+                </button>
+                <a href="/advanced" class="btn btn-secondary ms-1" type="button">
+                    <i class="fa-solid fa-filter me-2"></i>Advanced search
+                </a>
+            </div>
+            <div class="collapse" id="sorting">
+                <div class="mt-1 card card-body">
+                    <button id="sortByDateAsc">Order by date (ascending)</button>
+                    <button id="sortByDateDesc">Order by date (descending)</button>
+                    <button id="sortByTitleAsc">Order by title (ascending)</button>
+                    <button id="sortByTitleDesc">Order by title (descending)</button>
+                </div>
+            </div>
+            <% } %>
+
+            <div class="mt-5" id="posts-container">
+                <% if (posts.length === 0) { %>
+                    <img class="mt-5 mb-5 center img-fluid" width="400" height="400" src="../images/no-posts-found-chicken.png" alt="image">
+                    <h2 class="text-center">No posts found. Keep searching!</h2>
+                <% } else { %>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                        <% for (let i = 0; i < posts.length && i < 16; i++) { %>
+                            <% const post = posts[i]; %>
+                            <div class="col-12 col-md-3 mx-auto mb-3">
+                                <%- include('post-card.ejs', { post: post }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+                    <%- include('pagination.ejs') %>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<%- include('footer.ejs') %>
+<!-- common scripts -->
+<%- include('scripts.ejs') %>
+<!-- sorting functionality -->
+<script src="../javascripts/post-sorting.js"></script>
+</body>
+</html>

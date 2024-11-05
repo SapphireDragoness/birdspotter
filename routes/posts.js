@@ -8,26 +8,6 @@ const postsDao = require('../models/posts-dao');
 router.use(express.static(path.join(__dirname, '../public')));
 
 /**
- * Gets and displays posts on search page
- */
-router.get('/', async (req, res) => {
-    const postsPerPage = 16;
-    try {
-      const posts = await postsDao.getTrendingPosts();
-      const page = parseInt(req.query.page) || 1;
-      const startIndex = (page - 1) * postsPerPage;
-      const endIndex = startIndex + postsPerPage;
-      const postsOnPage = events.slice(startIndex, endIndex);
-      const totalPages = Math.ceil(events.length / postsPerPage);
-
-      res.render('posts.ejs', {currentPage: page, totalPages, postsOnPage, aut:true, type: req.user.type, username: req.user.username});
-    }
-    catch(error) {
-      res.render('error.ejs', {message: error});
-    }
-});
-
-/**
  * Gets and displays a single post
  */
 router.get('/:postID', async (req, res) => {
@@ -44,13 +24,12 @@ router.get('/:postID', async (req, res) => {
       const liked = await postsDao.isPostLikedByUser(req.user.username, postID);
       const saved = await postsDao.isPostSavedByUser(req.user.username, postID);
 
-      res.render('post-page.ejs', {likes, post, comments, posts, liked, saved, username: req.user.username, aut: true, type: req.user.type});
+      res.render('post-page.ejs', {likes, post, comments, posts, liked, saved, currentUser: req.user, aut: true, type: req.user.type});
     }
     else
-      res.render('post-page.ejs', {likes, post, comments, posts, aut: false, type: false, username: false});
+      res.render('post-page.ejs', {likes, post, comments, posts, aut: false, type: false, currentUser: false});
   }
   catch(error) {
-    console.log(error);
     res.render('error.ejs', {message: error.error});
   }
 });
@@ -135,7 +114,8 @@ router.get('/:postID/comments', async (req, res) => {
  */
 router.post('/:postID/comments', async (req, res) => {
   const postID = req.params.postID;
-  const { username, content } = req.body;
+  const username = req.user.username;
+  const { content } = req.body;
 
   try {
     const newComment = await postsDao.addComment(postID, username, content);
@@ -203,6 +183,5 @@ router.post('/posts/:postID/delete', async (req, res) => {
     res.status(500).json({ message: 'Error updating post.' });
   }
 });
-
 
 module.exports = router;
