@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="User profile">
+    <!-- custom CSS -->
+    <link href="/stylesheets/user-profile-private.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>BirdSpotter - Private</title>
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Navbar -->
+<%- include('navbar.ejs') %>
+
+<main class="container-fluid p-0 d-flex">
+
+    <div id="bdSidebar"
+         class="d-flex flex-column
+                    flex-shrink-0
+                    p-3 bg-dark
+                    text-white sidebar collapse min-vh-100">
+        <ul class="mynav nav nav-pills flex-column mb-auto">
+            <li class="nav-item mb-1">
+                <a href="/users/<%= currentUser.username %>/private">
+                    <i class="fa-solid fa-user"></i>
+                    <span>My profile</span>
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="/users/<%= currentUser.username %>/edit">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                    <span>Edit profile</span>
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="/users/<%= currentUser.username %>/change-password">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Change password</span>
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="/users/<%= currentUser.username %>/delete">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>Delete profile</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-md-3 border-right">
+        <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+            <img class="rounded-circle mt-5 mb-5"
+                 width="200px"
+                 src="../<%= currentUser.picture %>" alt="user picture">
+            <span class="font-weight-bold"><%= currentUser.username %></span>
+            <span class="text-black-50"><%= currentUser.email %></span>
+            <% if(currentUser.type === 'admin') { %>
+                <h5><span class="badge text-bg-danger mt-2">Administrator</span></h5>
+            <% } else if(currentUser.type === 'moderator') { %>
+                <h5><span class="badge text-bg-warning mt-2">Moderator</span></h5>
+            <% } else { %>
+                <h5><span class="badge text-bg-primary mt-2">User</span></h5>
+            <% } %>
+        </div>
+    </div>
+
+    <% if(page === 1) { %>
+
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h4 class="text-right">My profile</h4>
+                </div>
+                <div class="custom-form-group mt-3">
+                    <div class="col-md-3">
+                        <small class="text-muted">First name</small>
+                        <p><%= currentUser.firstName %></p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Last name</small>
+                        <p><%= currentUser.lastName %></p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Bio</small>
+                        <p><%= currentUser.about %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <% } else if(page === 2) { %>
+
+        <div class="col-md-3 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Edit Profile</h4>
+                </div>
+
+                <form action="/users/<%= currentUser.username %>/edit" method="POST" enctype="multipart/form-data"
+                      id="editForm">
+                    <div class="custom-form-group mt-3">
+                        <label class="text-uppercase" for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="pb-1" placeholder="Your first name"
+                               name="firstName" value="<%= currentUser.firstName %>"
+                               required/><span class="pb-1"></span>
+                    </div>
+                    <div class="custom-form-group mt-3">
+                        <label class="text-uppercase" for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="pb-1" placeholder="Your last name"
+                               name="lastName" value="<%= currentUser.lastName %>"
+                               required/><span class="pb-1"></span>
+                    </div>
+                    <div class="custom-form-group mt-3">
+                        <label class="text-uppercase" for="email">Email</label>
+                        <input type="email" id="email" class="pb-1" placeholder="Your email"
+                               name="email" value="<%= currentUser.email %>" required/><span
+                                class="pb-1"></span>
+                    </div>
+                    <div class="custom-form-group mt-3">
+                        <label for="image" class="text-uppercase">Profile picture</label>
+                        <div id="imageContainer">
+                            <img id="imagePreview" src="" alt="Image Preview"
+                                 style="display: none; max-width: 350px; padding: 10px;"/>
+                        </div>
+                        <input class="form-control" type="file" id="imageInput" name="image" accept="image/*"><span
+                                class="pb-1"></span>
+                    </div>
+                    <div class="custom-form-group mt-3">
+                        <label class="text-uppercase" for="description">Bio</label>
+                        <textarea rows="3" maxlength="140" id="description" class="form-control mx-auto"
+                                  placeholder="Something about yourself..."
+                                  name="bio"></textarea><span
+                                class="pb-1"></span>
+                        <p id="charCount">0/140</p>
+                    </div>
+                    <div class="mt-5">
+                        <button type="submit" class="w-100 p-2 d-block custom-btn">Edit profile</button>
+                    </div>
+
+            </div>
+        </div>
+
+    <% } else if(page === 3) { %>
+
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Change password</h4>
+                </div>
+                <a class="text-decoration-none" href="/password-reset"><h4>Click here to change your password</h4></a>
+            </div>
+        </div>
+
+    <% } else if(page === 4) { %>
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Delete profile</h4>
+                </div>
+                <h5>It's sad to see you go... If you really want to delete you account, click on the button below.</h5>
+                <button class="btn btn-lg btn-danger" data-bs-toggle="modal" title="delete"
+                        data-bs-target="#deleteModal">
+                    <i class="fa-solid fa-trash me-2"></i>Delete account
+                </button>
+                <!-- modal for post deletion -->
+                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete your account? This action is irreversible.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="/users/<%= currentUser.username %>/delete" method="POST">
+                                    <button type="submit" class="btn btn-danger">Confirm</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <p>This is just a placeholder in case you or I manage to break pagination :)</p>
+    <% } %>
+
+</main>
+
+<!-- Footer -->
+<%- include('footer.ejs') %>
+
+<%- include('scripts.ejs') %>
+<script src="../javascripts/show-image.js"></script>
+<script src="../javascripts/word-count.js"></script>
+</body>
+</html>

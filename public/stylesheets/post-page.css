@@ -39,12 +39,10 @@
     width:100%;
     margin:0 auto;
 }
-.objectFit {
-    object-fit: scale-down;
-    width:100%;
-    max-width:90vw;
-    min-height:80vh;
-    margin: 0 auto
+.custom-img {
+    object-fit: cover;
+    margin: 0 auto;
+    border-radius: 10px;
 }
 #showCursor {
     cursor:pointer
@@ -66,4 +64,18 @@
     color: chocolate;
     text-shadow: 1px 1px 1px #ccc;
     font-size: 1.5em;
+}
+
+.fa-pen-to-square {
+    font-size: 1.5em;
+}
+
+.fa-trash {
+    color: darkred;
+    font-size: 1.5em;
+}
+
+#comments-section {
+    overflow-y: scroll;
+    height: 500px
 }

@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
     const totalPages = Math.ceil(totalPosts / limit);
 
     if(req.user !== undefined) {
-      res.render('search-results', { posts, currentPage: page, totalPages, searchString, aut: true });
+      res.render('search-results', { posts, currentPage: page, totalPages, searchString, aut: true, currentUser: req.user });
     }
     else {
       res.render('search-results', { posts, currentPage: page, totalPages, searchString, aut: false });

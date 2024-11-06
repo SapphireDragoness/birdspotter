@@ -10,7 +10,9 @@ router.use(express.static(path.join(__dirname, '../public')));
 // GET login page
 router.get('/', (req, res) => {
   if(req.isAuthenticated()) res.redirect('/');
-  else res.render('login-register.ejs', {failure: false, type: null, login: true, aut: false});
+  else {
+    res.render('login-register.ejs', {failure: false, type: null, login: true, aut: false, successMessage: false});
+  }
 });
 
 router.post('/', function (req, res, next) {
@@ -23,9 +25,8 @@ router.post('/', function (req, res, next) {
         login: true,
         type: null,
         message: info.message,
-        aut: false,
-        insertedUsername: req.body.username,
-        insertedPassword: req.body.password
+        successMessage: false,
+        aut: false
       });
     }
     else {

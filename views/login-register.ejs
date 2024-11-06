@@ -8,8 +8,8 @@
     <title>BirdSpotter</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 
 <body class="text-center">
@@ -32,27 +32,58 @@
                                     <div class="text-center">
                                         <h1 class="customHeading h3 text-uppercase">Login</h1>
                                     </div>
+
                                     <form action="/login" method="POST">
+
                                         <% if(failure) { %>
                                             <div class="row">
-                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto" role="alert">
-                                                    <strong>Errore: <%= message %></strong>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto"
+                                                     role="alert">
+                                                    <strong>Error: <%= message %></strong>
+                                                    <button type="button" class="btn-close"
+                                                            data-bs-dismiss="alert-danger" aria-label="Close"></button>
                                                 </div>
                                             </div>
                                         <% } %>
+
+                                        <% if (successMessage) { %>
+                                            <div class="row">
+                                                <div class="alert alert-success alert-dismissible fade show text-center w-75 mt-3 mx-auto"
+                                                     role="alert">
+                                                    <strong><%= successMessage %></strong>
+                                                    <button type="button" class="btn-close"
+                                                            data-bs-dismiss="alert-success" aria-label="Close"></button>
+                                                </div>
+                                            </div>
+                                        <% } %>
+
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="username">Username</label>
-                                            <input type="text" id="username" class="pb-1" placeholder="Your username" name="username"/><span class="pb-1"></span>
+                                            <input type="text" id="username" class="pb-1" placeholder="Your username"
+                                                   name="username"/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="password">Password</label>
-                                            <input type="password" id="password" class="pb-1" placeholder="Your password" name="password"/><span class="pb-1"></span>
+                                            <input type="password" id="password" class="pb-1"
+                                                   placeholder="Your password" name="password"/><span
+                                                    class="pb-1"></span>
+                                            <button type="button" class="btn btn-link"
+                                                    onclick="togglePasswordVisibility('password', 'togglePassword')">
+                                                <i id="togglePassword" class="fa fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-group mt-3">
+                                            <a href="/password-reset" class="text-secondary mt-3">Forgot your
+                                                password?</a>
                                         </div>
                                         <div class="mt-5">
-                                            <button type="submit" class="w-100 p-2 d-block custom-btn" >Login</button>
+                                            <button type="submit" class="w-100 p-2 d-block custom-btn">Login</button>
                                         </div>
                                     </form>
+                                    <div class="mt-5">
+                                        <a class="text-decoration-none" href="/register">Need an account? Click here to
+                                            register</a>
+                                    </div>
                                 </div>
 
                             <% } else { %>
@@ -61,39 +92,71 @@
                                     <div class="text-center">
                                         <h1 class="customHeading h3 text-uppercase">Register</h1>
                                     </div>
-                                    <form action="/register" method="POST">
+                                    <form action="/register" method="POST" id="registrationForm">
                                         <% if(failure) { %>
                                             <div class="row">
-                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto" role="alert">
+                                                <div class="alert alert-danger alert-dismissible fade show text-center w-75 mt-3 mx-auto"
+                                                     role="alert">
                                                     <strong>Error: <%= message %></strong>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                            aria-label="Close"></button>
                                                 </div>
                                             </div>
                                         <% } %>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="firstName">First Name</label>
-                                            <input type="text" id="firstName" class="pb-1" placeholder="Your first name" name="firstName"/><span class="pb-1"></span>
+                                            <input type="text" id="firstName" class="pb-1" placeholder="Your first name"
+                                                   name="firstName" value="<%= formData ? formData.firstName : '' %>"
+                                                   required/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="lastName">Last Name</label>
-                                            <input type="text" id="lastName" class="pb-1" placeholder="Your last name" name="lastName"/><span class="pb-1"></span>
+                                            <input type="text" id="lastName" class="pb-1" placeholder="Your last name"
+                                                   name="lastName" value="<%= formData ? formData.lastName : '' %>"
+                                                   required/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="email">Email</label>
-                                            <input type="email" id="email" class="pb-1" placeholder="Your email" name="email"/><span class="pb-1"></span>
+                                            <input type="email" id="email" class="pb-1" placeholder="Your email"
+                                                   name="email" value="<%= formData ? formData.email : '' %>" required/><span
+                                                    class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="username">Username</label>
-                                            <input type="text" id="username" class="pb-1" placeholder="Your username" name="username"/><span class="pb-1"></span>
+                                            <input type="text" id="username" class="pb-1" placeholder="Your username"
+                                                   name="username" value="<%= formData ? formData.username : '' %>"
+                                                   required/><span class="pb-1"></span>
                                         </div>
                                         <div class="custom-form-group mt-3">
                                             <label class="text-uppercase" for="password">Password</label>
-                                            <input type="password" id="password" class="pb-1" placeholder="Your password" name="password"/><span class="pb-1"></span>
+                                            <input type="password" id="password" class="pb-1"
+                                                   placeholder="Your password" name="password"/><span
+                                                    class="pb-1"></span>
+                                            <button type="button" class="btn btn-link"
+                                                    onclick="togglePasswordVisibility('password', 'togglePassword')">
+                                                <i id="togglePassword" class="fa fa-eye"></i>
+                                            </button>
+                                            <small id="password-strength"></small>
+                                        </div>
+                                        <div class="custom-form-group mt-3">
+                                            <label class="text-uppercase" for="confirmPassword">Confirm password</label>
+                                            <input type="password" id="confirmPassword" class="pb-1"
+                                                   placeholder="Confirm your password" name="confirmPassword"/><span
+                                                    class="pb-1"></span>
+                                            <button type="button" class=" btn btn-link"
+                                                    onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword')">
+                                                <i id="toggleConfirmPassword" class="fa fa-eye"></i>
+                                            </button>
+                                            <small id="password-match" class="text-danger"></small>
                                         </div>
                                         <div class="mt-5">
-                                            <button type="submit" class="w-100 p-2 d-block custom-btn" >Register</button>
+                                            <button type="submit" class="w-100 p-2 d-block custom-btn">Register</button>
                                         </div>
                                     </form>
+                                    <div class="mt-5">
+                                        <a class="text-decoration-none text-nowrap" href="/login">Have an account? Click
+                                            here to login</a>
+                                    </div>
                                 </div>
 
                             <% } %>
@@ -109,8 +172,13 @@
 </body>
 
 <!-- Bootstrap core JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 <!--FontAwesome-->
 <script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
-
+<!-- Jquery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- password toggling and checking -->
+<script src="javascripts/passwords.js"></script>
 </html>

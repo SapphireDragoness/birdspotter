@@ -4,7 +4,7 @@
                 aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="/"><img src="images/site-logo.png" alt="Bird Logo" height="38"></a>
+        <a class="navbar-brand" href="/"><img src="../images/site-logo.png" alt="Bird Logo" height="38"></a>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
@@ -14,13 +14,17 @@
                     <a href="#" aria-current="page" class="nav-link px-2 text-white">Contact Us</a>
                 </li>
                 <li class="nav-item">
-                    <a href="https://avibase.bsc-eoc.org/checklist.jsp?region=ITpi" aria-current="page"
+                    <a href="#" aria-current="page" class="nav-link px-2 text-white">Donate</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" aria-current="page"
                        class="nav-link px-2 text-white">Bird Database</a>
                 </li>
             </ul>
             <div class="col-md-8">
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <form class="d-flex" action="/search" method="get" role="search">
+                    <input class="form-control me-2" type="search"
+                           placeholder="Search posts by title, bird, location or user..." aria-label="Search" name="q">
                     <button class="btn btn-outline-primary" type="submit"><i class="fa-solid fa-search"></i></button>
                 </form>
             </div>
@@ -40,18 +44,29 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
                                 aria-expanded="false">
-                            Welcome, <%= username %> !
+                            Welcome, <%= currentUser.username %> !
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/new-post"><i class="fa-solid fa-camera"></i> Add
+                            <li><a class="dropdown-item" href="/new-post"><i class="fa-solid fa-camera me-2"></i> Add
                                     photo</a></li>
-                            <li><a class="dropdown-item" href="/users/<%= username %>"><i class="fa-solid fa-user"></i>
+                            <li><a class="dropdown-item" href="/users/<%= currentUser.username %>/posts"><i
+                                            class="fa-solid fa-user me-2"></i>
                                     Profile</a></li>
+                            <% if(currentUser.type === 'admin') { %>
+                                <li><a class="dropdown-item" href="/admin/dashboard"><i
+                                                class="fa-solid fa-gauge me-2"></i>
+                                        Dashboard</a></li>
+                            <% } %>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="/logout" id="logoutLink"><i
-                                            class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                            <li>
+                                <form action="/logout" method="post">
+                                    <button class="dropdown-item"><i
+                                                class="fa-solid fa-right-from-bracket"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
 
@@ -62,4 +77,3 @@
 </nav>
 
 <script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>
-<script src="javascripts/logout.js"></script>

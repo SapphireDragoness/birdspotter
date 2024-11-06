@@ -1,0 +1,95 @@
+.mynav {
+    color: #fff;
+}
+
+.mynav li a {
+    color: #fff;
+    text-decoration: none;
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    padding: 10px 10px;
+}
+
+.mynav li a.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mynav li a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mynav li a i {
+    width: 25px;
+    text-align: center;
+}
+
+#bdSidebar {
+    width: 15%;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    border: none;
+    &:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.4);
+    }
+    a {
+        text-decoration: none;
+        color: initial;
+    }
+    .text-muted i {
+        margin: 0 10px 0 0;
+    }
+}
+
+#card-image {
+    max-height: 300px;
+}
+
+@media only screen and (max-width: 650px) {
+    .mynav li a span {
+        visibility: collapse;
+    }
+    .mynav li a {
+        width: 75%;
+        padding: 0;
+    }
+    .mynav li {
+        display: flex;
+    }
+}
+
+.custom-form-group label {
+    color:#212529;
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+.custom-form-group span {
+    width:32px;
+    border-bottom:1px solid ;
+    vertical-align:middle;
+    color:#212529;
+    display:inline;
+}
+.custom-form-group input {
+    width : calc(100% - 32px);
+    border:none;
+    border-bottom:1px solid #212529;
+    box-sizing:content-box;
+    outline:none;
+}
+.custom-btn {
+    border-radius:32px;
+    background : #212529;
+    border:2px solid transparent;
+    color:#fff;
+    height:48px;
+}
+.custom-btn:hover {
+    background: #fff;
+    border: 2px solid #212529;
+    color: #212529;
+}

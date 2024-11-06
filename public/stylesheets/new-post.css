@@ -98,3 +98,7 @@
     background-color: DodgerBlue !important;
     color: #ffffff;
 }
+
+.textarea{
+    resize: none;
+}

@@ -44,6 +44,7 @@ const passwordResetRouter = require('./routes/password-reset')
 const passwordUpdateRouter = require('./routes/password-update')
 const searchRouter = require('./routes/search')
 const advancedRouter = require('./routes/advanced')
+const adminRouter = require('./routes/admin')
 
 // app creation
 const app = express();
@@ -113,6 +114,7 @@ app.use('/password-reset', passwordResetRouter);
 app.use('/password-update', passwordUpdateRouter);
 app.use('/search', searchRouter);
 app.use('/advanced', advancedRouter);
+app.use('/admin', adminRouter);
 
 app.get('/', async(req, res) => {
   const posts = await postsDao.getTrendingPosts();

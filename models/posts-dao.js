@@ -160,8 +160,6 @@ exports.advancedSearch = function (title, username, bird, location, startDate, e
 
     sql += `LIMIT ? OFFSET ?`
 
-    console.log('I\'m about to call the db. I\'ve received: ' + params)
-
     db.all(sql, params, (err, rows) => {
       if (err) reject(err);
       else resolve(rows.map(mapPost));
@@ -345,24 +343,44 @@ exports.addPost = function (filename, op, bird, location, title, comment) {
  */
 exports.removePost = function (id) {
   return new Promise((resolve, reject) => {
-    const sql = `
-      BEGIN TRANSACTION;
-      DELETE FROM comments WHERE post_id = ?;
-      DELETE FROM likes WHERE post_id = ?;
-      DELETE FROM posts WHERE id = ?;
-      COMMIT;
-    `;
+    db.serialize(() => {
+      db.run("BEGIN TRANSACTION", (err) => {
+        if (err) {
+          return reject(err);
+        }
 
-    db.run(sql, [id, id, id], (err) => {
-      if (err) {
-        db.run("ROLLBACK");
-        reject(err);
-      } else {
-        resolve();
-      }
+        db.run("DELETE FROM comments WHERE post = ?", [id], (err) => {
+          if (err) {
+            db.run("ROLLBACK", () => reject(err));
+            return;
+          }
+
+          db.run("DELETE FROM likes WHERE post = ?", [id], (err) => {
+            if (err) {
+              db.run("ROLLBACK", () => reject(err));
+              return;
+            }
+
+            db.run("DELETE FROM posts WHERE id = ?", [id], (err) => {
+              if (err) {
+                db.run("ROLLBACK", () => reject(err));
+                return;
+              }
+
+              db.run("COMMIT", (err) => {
+                if (err) {
+                  return reject(err);
+                }
+                resolve();
+              });
+            });
+          });
+        });
+      });
     });
   });
 };
+
 
 
 /**
@@ -614,21 +632,23 @@ exports.getCommentsByPostID = function (postID) {
  * @param postID
  * @param username
  * @param content
+ * @param userPicture
  * @returns {Promise<unknown>}
  */
-exports.addComment = function (postID, username, content) {
+exports.addComment = function (postID, username, content, userPicture) {
   return new Promise((resolve, reject) => {
     const sql = `
-        INSERT INTO comments (post, user, comment)
-        VALUES (?, ?, ?);
+        INSERT INTO comments (post, user, comment, userPicture)
+        VALUES (?, ?, ?, ?);
     `;
-    db.run(sql, [postID, username, content], function (err) {
+    db.run(sql, [postID, username, content, userPicture], function (err) {
       if (err) reject(err);
       else resolve({
         id: this.lastID,
         post: postID,
         user: username,
-        comment: content
+        comment: content,
+        picture: userPicture
       });
     });
   });
@@ -711,3 +731,22 @@ exports.removeSave = function (username, postID) {
     });
   });
 };
+
+// admin thingies
+
+exports.getDailyPostCount = function () {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT DATE(date) as postDate, COUNT(*) as count
+      FROM posts
+      GROUP BY postDate
+      ORDER BY postDate DESC
+      LIMIT 30`;
+
+    db.all(sql, [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+

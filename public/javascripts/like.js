@@ -1,3 +1,8 @@
+'use strict'
+
+var postID = document.getElementById("like-script").getAttribute("data-postID");
+var username = document.getElementById("like-script").getAttribute("data-username");
+
 $(document).ready(function() {
   $('#like-button').on('click', function() {
     const liked = $(this).data('liked');

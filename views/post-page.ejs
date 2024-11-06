@@ -6,14 +6,11 @@
     <meta name="description" content="Post page">
     <!-- custom CSS -->
     <link href="/stylesheets/post-page.css" rel="stylesheet">
+    <link href="/stylesheets/style.css" rel="stylesheet">
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>BirdSpotter - Post</title>
-    <script>
-      const postID = "<%= post.id %>";
-      const username = "<%= currentUser.username %>";
-    </script>
 </head>
 <body class="d-flex flex-column h-100">
 
@@ -26,74 +23,98 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 mx-auto">
-                    <div class="shadow-md">
+                    <div class="shadow-md card card-body">
                         <div class="d-flex align-items-start">
 
                             <!-- post picture -->
-                            <div class="d-none d-md-block">
-                                <img src="<%= post.photoPath %>" class="objectFit" alt="post image"/>
+                            <div class="d-block d-md-block d-lg-block">
+                                <img src="<%= post.photoPath %>" width="570" height="570" class="img-fluid custom-img"
+                                     alt="post image"/>
                             </div>
 
                             <!-- post information -->
-                            <div class="p-lg-5">
-                                <div id="post_<%= post.id %>" class="post d-flex bd-highlight">
-                                    <h1 class="me-auto"><%= post.title %></h1>
-                                </div>
-                                <h5 class="text-muted">posted by <a class="text-decoration-none"
-                                                                    href="/users/<%=post.op%>/posts"><%= post.op %></a></h5>
-                                <div class="row flex-grow-0 p-1">
-                                    <small class="card-text text-muted"><i
-                                                class="fa-solid fa-calendar"></i><%= post.date %></small>
-                                    <small class="card-text text-muted"><i class="fa-solid fa-dove"></i><%= post.bird %>
-                                    </small>
-                                    <small class="card-text text-muted"><i
-                                                class="fa-solid fa-location-dot"></i><%= post.location %></small>
-                                </div>
+                            <div class="ps-lg-4">
+                                <div class="container-fluid col">
+                                    <div id="post_<%= post.id %>" class="post d-flex bd-highlight">
+                                        <h1 class="me-auto"><%= post.title %></h1>
+                                        <% if(currentUser.username === post.op || currentUser.type === 'admin' || currentUser.type === 'moderator') { %>
+                                            <a href="/posts/<%= post.id %>/edit" title="edit" id="edit-button"
+                                               class="btn btn-lg btn-link">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                            <button class="btn btn-lg btn-link" data-bs-toggle="modal" title="delete" data-bs-target="#deleteModal">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                            <!-- modal for post deletion -->
+                                            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteModalLabel">Confirm deletion</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete this post? This action is irreversible.
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form action="/posts/<%= post.id %>/delete" method="POST">
+                                                                <button type="submit" class="btn btn-danger">Confirm</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                <div class="custom-form-group mt-3">
-                                    <p class="text-wrap text-break"><%= post.comment %></p>
-                                </div>
-
-                                <!-- like and save buttons -->
-                                <div class="post d-flex bd-highlight">
-
-                                    <% if(aut) { %>
-
-                                        <button title="save" id="save-button" data-saved="<%= saved %>"
-                                            class="btn btn-lg btn-link">
-                                            <% if (saved) { %> <i class="fa-solid fa-bookmark"></i>
-                                            <% } else { %> <i class="fa-regular fa-bookmark"></i>
-                                            <% } %>
-                                        </button>
-                                    <% } %>
-
-                                    <% if(aut) { %>
-
-                                        <button title="like" id="like-button" data-liked="<%= liked %>"
-                                                class="btn btn-lg btn-link">
-                                            <% if (liked) { %> <i class="fa-solid fa-heart"></i>
-                                            <% } else { %> <i class="fa-regular fa-heart"></i>
-                                            <% } %>
-                                        </button>
-                                    <% } %>
-
-                                    <div class="mt-3 bd-highlight"><span id="like-count"><%= post.likes %></span>
-                                        <% if(post.likes === 1){ %> like
-                                        <% }else{ %> likes
                                         <% } %>
+                                    </div>
+                                    <h5 class="text-muted">posted by <a class="text-decoration-none"
+                                                                        href="/users/<%= post.op %>/posts"><%= post.op %></a>
+                                    </h5>
+                                    <div class="row flex-grow-0 p-1">
+                                        <small class="card-text text-muted"><i
+                                                    class="fa-solid fa-calendar"></i><%= post.date %></small>
+                                        <small class="card-text text-muted"><i
+                                                    class="fa-solid fa-dove"></i><%= post.bird %>
+                                        </small>
+                                        <small class="card-text text-muted"><i
+                                                    class="fa-solid fa-location-dot"></i><%= post.location %></small>
+                                    </div>
+
+                                    <div class="custom-form-group mt-3">
+                                        <p class="text-wrap text-break"><%= post.comment %></p>
+                                    </div>
+
+                                    <!-- like and save buttons -->
+                                    <div class="justify-content-start">
+
+                                        <% if(aut) { %>
+                                            <button title="save" id="save-button" data-saved="<%= saved %>"
+                                                    class="btn btn-lg btn-link p-0 ">
+                                                <% if (saved) { %> <i class="fa-solid fa-bookmark"></i>
+                                                <% } else { %> <i class="fa-regular fa-bookmark"></i>
+                                                <% } %>
+                                            </button>
+                                            <button title="like" id="like-button" data-liked="<%= liked %>"
+                                                    class="btn btn-lg btn-link">
+                                                <% if (liked) { %> <i class="fa-solid fa-heart"></i>
+                                                <% } else { %> <i class="fa-regular fa-heart"></i>
+                                                <% } %>
+                                            </button>
+                                        <% } %>
+                                            <span id="like-count"><%= post.likes %></span> like
                                     </div>
 
                                 </div>
 
-
                                 <!-- comment section -->
                                 <div class="container mt-3">
                                     <h3>Comments</h3>
-                                    <div class="post d-flex bd-highlight">
+                                    <div class="d-flex">
                                         <% if (aut) { %>
                                             <form id="add-comment-form" class="">
                                                 <label>
-                                                    <textarea name="comment" required></textarea>
+                                                    <textarea maxlength="140" name="comment" required></textarea>
                                                 </label>
                                                 <button class="btn btn-primary" type="submit">Comment</button>
                                             </form>
@@ -103,6 +124,7 @@
                                         <!-- comments go here -->
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -142,10 +164,13 @@
 <!-- Jquery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Script for like functionality -->
-<script src="../javascripts/like.js"></script>
+<script src="../javascripts/like.js" data-postID="<%= post.id %>" data-username="<%= currentUser.username %>"
+        id="like-script"></script>
 <!-- Script for save functionality -->
-<script src="../javascripts/saved.js"></script>
+<script src="../javascripts/saved.js" data-postID="<%= post.id %>" data-username="<%= currentUser.username %>"
+        id="saved-script"></script>
 <!-- Script for comment functionality -->
-<script src="../javascripts/comment.js"></script>
+<script src="../javascripts/comment.js" data-postID="<%= post.id %>" data-user="<%= JSON.stringify(currentUser) %>"
+        id="comment-script"></script>
 </body>
 </html>

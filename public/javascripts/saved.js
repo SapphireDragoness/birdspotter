@@ -1,3 +1,8 @@
+'use strict'
+
+var postID = document.getElementById("saved-script").getAttribute("data-postID");
+var username = document.getElementById("saved-script").getAttribute("data-username");
+
 $(document).ready(function() {
   $('#save-button').on('click', function() {
     const saved = $(this).data('saved');
