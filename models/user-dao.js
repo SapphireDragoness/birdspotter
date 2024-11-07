@@ -419,6 +419,13 @@ exports.removeFollow = function (follower, followed) {
   });
 };
 
+/**
+ * Checks if user is followed by logged-in user
+ *
+ * @param follower
+ * @param followed
+ * @returns {Promise<unknown>}
+ */
 exports.isFollowed = function(follower, followed) {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -439,6 +446,12 @@ exports.isFollowed = function(follower, followed) {
   });
 }
 
+/**
+ * Gets user followers
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
 exports.getFollowers = function (username) {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -453,6 +466,12 @@ exports.getFollowers = function (username) {
   });
 };
 
+/**
+ * Gets users followed by a user
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
 exports.getFollowed = function (username) {
   return new Promise((resolve, reject) => {
     const sql = `
