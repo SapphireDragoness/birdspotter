@@ -50,6 +50,7 @@ router.get('/', async(req, res) => {
 
 router.get('/:user/posts', async(req, res) => {
   try {
+    // constant checks, I know. paranoid
     const userProfile = await userDao.getUserByUsername(req.params.user); // this is the user whose profile I'm looking at
     const currentUser = req.user;
     const posts = await postsDao.getAllPostsByUser(userProfile.username);
@@ -57,7 +58,8 @@ router.get('/:user/posts', async(req, res) => {
       res.render('error', {message: 'User not found.'})
     // if user is authenticated, show follow button
     if(req.isAuthenticated()) {
-      res.render('user-profile', { userProfile, aut: true, currentUser, posts });
+      const followed = await userDao.isFollowed(req.user.username, req.params.user)
+      res.render('user-profile', { userProfile, aut: true, currentUser, posts, followed });
     }
     // else don't :)
     else
@@ -75,13 +77,53 @@ router.get('/:user/likedposts', async(req, res) => {
     const currentUser = req.user;
     const posts = await postsDao.getPostsLikedByUser(userProfile.username);
     if(req.isAuthenticated()) {
-      res.render('user-profile', { posts, userProfile, currentUser, aut:true });
+      const followed = await userDao.isFollowed(req.user.username, req.params.user)
+      res.render('user-profile', { posts, userProfile, currentUser, aut:true, followed });
     }
     else
       res.render('user-profile', { posts, userProfile, currentUser, aut:false });
   } catch (error) {
     console.error(error);
     res.status(500).render('error', {message: error});
+  }
+});
+
+router.get('/:user/savedposts', async(req, res) => {
+  try {
+    const userProfile = await userDao.getUserByUsername(req.params.user);
+    const currentUser = req.user;
+    const posts = await postsDao.getPostsSavedByUser(userProfile.username);
+    if(req.isAuthenticated()) {
+      const followed = await userDao.isFollowed(req.user.username, req.params.user)
+      res.render('user-profile', { posts, userProfile, currentUser, aut:true, followed });
+    }
+    else
+      res.render('user-profile', { posts, userProfile, currentUser, aut:false });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', {message: error});
+  }
+});
+
+router.post('/:user/follow', async (req, res) => {
+  try {
+    const username = req.user.username;
+    await userDao.addFollow(username, req.params.user);
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: 'Error adding follower (at users.js)'});
+  }
+});
+
+router.post('/:user/unfollow', async (req, res) => {
+  try {
+    const username = req.user.username;
+    await userDao.removeFollow(username, req.params.user);
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({message: 'Error removing follower (at uesers.js)'});
   }
 });
 
@@ -131,13 +173,49 @@ router.post('/:user/edit', upload.single('image'), async (req, res) => {
   }
 });
 
+router.get('/:user/followers', async(req, res) => {
+  try {
+    const userProfile = await userDao.getUserByUsername(req.params.user);
+    const currentUser = req.user;
+
+    if(req.isAuthenticated() && userProfile.username === currentUser.username) {
+      const followers = await userDao.getFollowers(currentUser.username)
+      console.log(followers)
+      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 3, followers });
+    }
+    else
+      res.status(403).render('error', { message: 'Never should have come here.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', {message: error});
+  }
+});
+
+router.get('/:user/followed', async(req, res) => {
+  try {
+    const userProfile = await userDao.getUserByUsername(req.params.user);
+    const currentUser = req.user;
+
+    if(req.isAuthenticated() && userProfile.username === currentUser.username) {
+      const followed = await userDao.getFollowed(currentUser.username)
+      console.log(followed)
+      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 4, followed });
+    }
+    else
+      res.status(403).render('error', { message: 'Never should have come here.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('error', {message: error});
+  }
+});
+
 router.get('/:user/change-password', async(req, res) => {
   try {
     const userProfile = await userDao.getUserByUsername(req.params.user);
     const currentUser = req.user;
 
     if(req.isAuthenticated() && userProfile.username === currentUser.username) {
-      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 3 });
+      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 5 });
     }
     else
       res.status(403).render('error', { message: 'Never should have come here.' });
@@ -153,7 +231,7 @@ router.get('/:user/delete', async(req, res) => {
     const currentUser = req.user;
 
     if(req.isAuthenticated() && userProfile.username === currentUser.username) {
-      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 4 });
+      res.render('user-profile-private', { userProfile, currentUser, aut:true, page: 6 });
     }
     else
       res.status(403).render('error', { message: 'Never should have come here.' });
@@ -165,27 +243,10 @@ router.get('/:user/delete', async(req, res) => {
 
 router.post('/:user/delete', async(req, res) => {
   try {
-    console.log('attempting to delete user...')
     await userDao.deleteUser(req.user.username);
     res.redirect(`/`);
   } catch (error) {
     res.status(500).render('error', { message: 'Profile deletion failed: ' + error });
-  }
-});
-
-router.get('/:user/savedposts', async(req, res) => {
-  try {
-    const userProfile = await userDao.getUserByUsername(req.params.user);
-    const currentUser = req.user;
-    const posts = await postsDao.getPostsSavedByUser(userProfile.username);
-    if(req.isAuthenticated()) {
-      res.render('user-profile', { posts, userProfile, currentUser, aut:true });
-    }
-    else
-      res.render('user-profile', { posts, userProfile, currentUser, aut:false });
-  } catch (error) {
-    console.error(error);
-    res.status(500).render('error', {message: error});
   }
 });
 

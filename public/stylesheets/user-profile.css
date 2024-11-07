@@ -13,7 +13,7 @@
 .username {
     font-size: 2rem;
     font-weight: bold;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 .bio {
     font-size: 1rem;
@@ -65,4 +65,11 @@
 
 #card-image {
     max-height: 300px;
+    max-width: 350px;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

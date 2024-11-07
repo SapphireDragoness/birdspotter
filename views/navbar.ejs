@@ -8,16 +8,13 @@
         <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a href="#" aria-current="page" class="nav-link px-2 text-white">FAQs</a>
+                    <a href="/contact" aria-current="page" class="nav-link px-2 text-white">Contact Us</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" aria-current="page" class="nav-link px-2 text-white">Contact Us</a>
+                    <a href="/donate" aria-current="page" class="nav-link px-2 text-white">Donate</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" aria-current="page" class="nav-link px-2 text-white">Donate</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" aria-current="page"
+                    <a href="https://avibase.bsc-eoc.org/avibase.jsp" aria-current="page"
                        class="nav-link px-2 text-white">Bird Database</a>
                 </li>
             </ul>
@@ -56,6 +53,10 @@
                                 <li><a class="dropdown-item" href="/admin/dashboard"><i
                                                 class="fa-solid fa-gauge me-2"></i>
                                         Dashboard</a></li>
+                            <% } else if(currentUser.type === 'moderator') { %>
+                                <li><a class="dropdown-item" href="/admin/user-list"><i
+                                                class="fa-solid fa-gauge me-2"></i>
+                                        Dashboard</a></li>
                             <% } %>
                             <li>
                                 <hr class="dropdown-divider">
@@ -75,5 +76,3 @@
         </div>
     </div>
 </nav>
-
-<script src="https://kit.fontawesome.com/262955342a.js" crossorigin="anonymous"></script>

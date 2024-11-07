@@ -120,7 +120,7 @@ exports.getUser = function(username, password) {
  */
 exports.makeAdmin = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET type = ? WHERE username = ?";
+    const sql = "UPDATE users SET type = ? WHERE username = ?";
 
     db.run(sql, ["admin", username], (err) => {
       if(err) reject(err);
@@ -137,7 +137,7 @@ exports.makeAdmin = function(username) {
  */
 exports.revokeAdmin = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = `UPDATE user SET type = ? WHERE username = ?`;
+    const sql = `UPDATE users SET type = ? WHERE username = ?`;
 
     db.run(sql, ["user", username], (err) => {
       if(err) reject(err);
@@ -154,7 +154,7 @@ exports.revokeAdmin = function(username) {
  */
 exports.makeModerator = function makeModerator(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET type = ? WHERE username = ?";
+    const sql = "UPDATE users SET type = ? WHERE username = ?";
 
     db.run(sql, ["moderator", username], (err) => {
       if (err) reject(err);
@@ -171,7 +171,7 @@ exports.makeModerator = function makeModerator(username) {
  */
 exports.revokeModerator = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET type = ? WHERE username = ?";
+    const sql = "UPDATE users SET type = ? WHERE username = ?";
 
     db.run(sql, ["user", username], (err) => {
       if(err) reject(err);
@@ -188,7 +188,7 @@ exports.revokeModerator = function(username) {
  */
 exports.banUser = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET banned = ? WHERE username = ?";
+    const sql = "UPDATE users SET banned = ? WHERE username = ?";
 
     db.run(sql, [1, username], (err) => {
       if(err) reject(err);
@@ -205,7 +205,7 @@ exports.banUser = function(username) {
  */
 exports.unbanUser = function(username) {
   return new Promise((resolve, reject) => {
-    const sql = "UPDATE user SET banned = ? WHERE username = ?";
+    const sql = "UPDATE users SET banned = ? WHERE username = ?";
 
     db.run(sql, [0, username], (err) => {
       if(err) reject(err);
@@ -230,7 +230,7 @@ exports.updateUserProfile = function(username, email, firstName, lastName, pictu
     const fields = [];
     const values = [];
 
-    // adds only nonempty fields
+    // only adds nonempty fields
     if (email) {
       fields.push("email = ?");
       values.push(email);
@@ -252,26 +252,37 @@ exports.updateUserProfile = function(username, email, firstName, lastName, pictu
       values.push(bio);
     }
 
-    // if all fields are empty, solve
     if (fields.length === 0) {
-      console.log('resolving')
       return resolve(0);
     }
 
     const sql = `
-      UPDATE users 
-      SET ${fields.join(", ")}
-      WHERE username = ?`;
-
+        UPDATE users
+        SET ${fields.join(", ")}
+        WHERE username = ?`;
     values.push(username);
-    console.log(values)
 
     db.run(sql, values, function(err) {
       if (err) reject(err);
-      else resolve(this.changes);
+      else {
+        if (picture) {
+          // updates all pictures in user comments as well
+          const updateCommentsSQL = `
+            UPDATE comments 
+            SET userPicture = ? 
+            WHERE user = ?`;
+          db.run(updateCommentsSQL, ["images/user_images/profile_pics/" + picture, username], (err) => {
+            if (err) reject(err);
+            else resolve(this.changes);
+          });
+        } else {
+          resolve(this.changes);
+        }
+      }
     });
   });
 };
+
 
 /**
  * Gets a user from the database using their email.
@@ -347,6 +358,113 @@ exports.deleteUser = async function(username) {
     await db.run("ROLLBACK");
     throw error;
   }
+};
+
+exports.getTopFollowedUsers = function() {
+  return new Promise((resolve, reject) => {
+    const sql = `
+    SELECT followed AS username, COUNT(follower) AS followers_count
+    FROM follow
+    GROUP BY followed
+    ORDER BY followers_count DESC
+    LIMIT 10;
+  `;
+
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+};
+
+
+/**
+ * Adds a follow to a user.
+ *
+ * @param follower
+ * @param followed
+ * @returns {Promise<unknown>}
+ */
+exports.addFollow = function (follower, followed) {
+  return new Promise((resolve, reject) => {
+    const sql = `INSERT OR IGNORE INTO follow (follower, followed)
+                 VALUES (?, ?)`;
+    db.run(sql, [follower, followed], function (err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+/**
+ * Removes a follow from a user.
+ *
+ * @param follower
+ * @param followed
+ * @returns {Promise<unknown>}
+ */
+exports.removeFollow = function (follower, followed) {
+  return new Promise((resolve, reject) => {
+    const sql = `DELETE
+                 FROM follow
+                 WHERE follower = ?
+                   AND followed = ?`;
+    db.run(sql, [follower, followed], function (err) {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+};
+
+exports.isFollowed = function(follower, followed) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT *
+        FROM follow
+        WHERE follow.follower = ?
+          AND follow.followed = ?
+    `;
+
+    db.get(sql, [follower, followed], (err, row) => {
+      if (err)
+        reject(err);
+      else if (row === undefined)
+        resolve(false);
+      else
+        resolve(true);
+    });
+  });
+}
+
+exports.getFollowers = function (username) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT u.username, u.picture, u.about, u.banned
+        FROM follow AS f
+                 JOIN users AS u ON f.follower = u.username
+        WHERE f.followed = ?`;
+    db.all(sql, [username], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+exports.getFollowed = function (username) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT u.username, u.picture, u.about, u.banned
+        FROM follow AS f
+                 JOIN users AS u ON f.followed = u.username
+        WHERE f.follower = ?`;
+    db.all(sql, [username], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
 };
 
 

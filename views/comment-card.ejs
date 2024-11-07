@@ -1,0 +1,14 @@
+<div class="card mb-3" data-comment-id="<%= comment.id %>">
+    <div class="card-body d-flex align-items-start">
+        <img src="../<%= comment.userPicture %>" alt="User Picture" class="rounded-circle me-3" width="50" height="50"/>
+        <div class="w-100">
+            <h6 class="card-subtitle mb-2 text-muted"><strong><%= comment.user %></strong></h6>
+            <p class="card-text"><%= comment.comment %></p>
+        </div>
+        <% if(comment.user === currentUser.username || currentUser.type === 'admin' || currentUser.type === 'moderator') { %>
+            <button id="delete-comment" class="btn btn-lg btn-link" style="font-size: small">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        <% } %>
+    </div>
+</div>

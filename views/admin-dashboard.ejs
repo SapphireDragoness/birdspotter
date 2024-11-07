@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="User profile">
+    <!-- custom CSS -->
+    <link href="../stylesheets/user-profile-private.css" rel="stylesheet">
+    <link href="../stylesheets/style.css" rel="stylesheet">
+    <link href="../stylesheets/post-page.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>BirdSpotter - Admin</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Navbar -->
+<%- include('navbar.ejs') %>
+
+<main class="container-fluid p-0 d-flex">
+
+    <div id="bdSidebar"
+         class="d-flex flex-column
+                    flex-shrink-0
+                    p-3 bg-dark
+                    text-white sidebar collapse min-vh-100">
+        <ul class="mynav nav nav-pills flex-column mb-auto">
+            <!-- only show stats if admin -->
+            <% if(currentUser.type === 'admin') { %>
+            <li class="nav-item mb-1">
+                <a href="/admin/dashboard">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>Site stats</span>
+                </a>
+            </li>
+                <% } %>
+            <li class="nav-item mb-1">
+                <a href="/admin/user-list">
+                    <i class="fa-regular fa-user"></i>
+                    <span>User list</span>
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="/admin/post-list">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Post list</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <% if(page === 1 && currentUser.type === 'admin') { %>
+
+        <div class="col-sm-4 border-right ms-5">
+            <div class="p-3 mt-5 card card-body">
+                <div class="justify-content-center mb-3">
+                    <h4 class="text-center">Posts per day</h4>
+                </div>
+                <canvas id="dailyPostsChart"></canvas>
+            </div>
+            <div class="p-3 mt-5 card card-body">
+                <div class="justify-content-center mb-3">
+                    <h4 class="text-center">Best performing posts</h4>
+                </div>
+                <canvas id="topPostsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-sm-4 border-right ms-5">
+            <div class="p-3 mt-5 card card-body">
+                <div class="justify-content-center mb-3">
+                    <h4 class="text-center">Most followed users</h4>
+                </div>
+                <canvas id="topFollowedChart"></canvas>
+            </div>
+            <div class="p-3 mt-5 card card-body">
+                <div class="justify-content-center mb-3">
+                    <h4 class="text-center">Revenue from donations</h4>
+                </div>
+                <!-- ran out of chart ideas -->
+                TBA
+            </div>
+        </div>
+        <!-- needs to be here otherwise it breaks page rendering -->
+        <script src="../javascripts/admin-charts.js" id="admin-charts" data-posts="<%= JSON.stringify((dailyPosts)) %>"
+                data-top="<%= JSON.stringify((topPosts)) %>" data-follows="<%= JSON.stringify((mostFollowedUsers)) %>"
+                type="module"></script>
+
+    <% } else if(page === 2) { %>
+
+        <div class="container-fluid">
+            <div class="p-3 py-5">
+                <div class="mb-3">
+                    <h2 class="text-center">User list</h2>
+                </div>
+
+                <% if (users.length === 0) { %>
+                    <h2 class="text-center">No users? :( (impossible)</h2>
+                <% } else { %>
+                    <div class="row g-3" id="users-container">
+                        <% for (let i = 0; i < users.length; i++) { %>
+                            <% const f = users[i]; %>
+                            <div class="col-12 col-sm-6 mx-auto mb-3">
+                                <%- include('user-card-admin.ejs', { f: f }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+    <% } else if(page === 3) { %>
+
+        <div class="container">
+            <div class="p-0 py-5">
+                <div class="mb-5">
+                    <h2 class="text-center">Post list</h2>
+                </div>
+
+                <% if (posts.length === 0) { %>
+                    <h2 class="text-center">No posts found.</h2>
+                <% } else { %>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="posts-container">
+                        <% for (let i = 0; i < posts.length; i++) { %>
+                            <% const post = posts[i]; %>
+                            <div class="col-10 col-md-2 mx-auto mb-3">
+                                <%- include('post-card-admin.ejs', { post: post }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+    <% } else { %>
+        <p>This is just a placeholder in case you or I manage to break pagination :)</p>
+    <% } %>
+
+</main>
+
+<!-- Footer -->
+<%- include('footer.ejs') %>
+<!-- common scripts -->
+<%- include('scripts.ejs') %>
+<script src="../javascripts/admin-options.js"></script>
+<!-- for post deletion -->
+<script src="../javascripts/delete-post.js"></script>
+</body>
+</html>

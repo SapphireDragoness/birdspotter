@@ -7,6 +7,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const flash = require('connect-flash');
+const nodemailer = require('nodemailer');
 
 // my modules
 const passport = require('passport');
@@ -16,17 +17,6 @@ const userDao = require('./models/user-dao.js');
 const postsDao = require('./models/posts-dao.js');
 // for various secrets
 require('dotenv').config();
-
-// TODO when hosted
-// for https
-// const https = require("https")
-// const fs = require("fs");
-//
-// // ssl parameters
-// const options = {
-//   key: fs.readFileSync("/srv/www/keys/my-site-key.pem"),
-//   cert: fs.readFileSync("/srv/www/keys/chain.pem")
-// };
 
 const requirejs = require('requirejs');
 requirejs.config({
@@ -49,9 +39,6 @@ const adminRouter = require('./routes/admin')
 // app creation
 const app = express();
 
-// TODO when hosted
-// app.listen(8000);
-// https.createServer(options, app).listen(8080);
 
 // view engine setup (EJS)
 app.set('views', path.join(__dirname, 'views'));
@@ -116,6 +103,7 @@ app.use('/search', searchRouter);
 app.use('/advanced', advancedRouter);
 app.use('/admin', adminRouter);
 
+// homepage
 app.get('/', async(req, res) => {
   const posts = await postsDao.getTrendingPosts();
 
@@ -123,6 +111,59 @@ app.get('/', async(req, res) => {
     res.render('index.ejs', {aut: true, type: req.user.type, currentUser: req.user, posts});
   else
     res.render('index.ejs', {aut: false, type: false, currentUser: false, posts});
+});
+
+// donation route
+app.get('/donate', async(req, res) => {
+  if(req.isAuthenticated())
+    res.render('donation.ejs', {aut: true, type: req.user.type, currentUser: req.user});
+  else
+    res.render('donation.ejs', {aut: false, type: false, currentUser: false});
+});
+
+/**
+ * Sends email through nodemailer
+ *
+ * @param userEmail
+ * @param message
+ * @returns {Promise<*>}
+ */
+async function sendEmail(userEmail, message) {
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: userEmail,
+    to: process.env.EMAIL_USER,
+    subject: 'User wants to contact us!',
+    html: `<p>${message}</p>`
+  };
+
+  return transporter.sendMail(mailOptions);
+}
+
+// contact routes
+app.get('/contact', async(req, res) => {
+  if(req.isAuthenticated())
+    res.render('contact.ejs', {aut: true, type: req.user.type, currentUser: req.user});
+  else
+    res.render('contact.ejs', {aut: false, type: false, currentUser: false});
+});
+
+app.post('/contact', async (req, res) => {
+  try {
+    const { email, messageType, message } = req.body;
+    const toSend = messageType + ': ' + message
+    await sendEmail(email, toSend)
+    res.status(200).json({ message: 'Message sent successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error sending message' });
+  }
 });
 
 // logout

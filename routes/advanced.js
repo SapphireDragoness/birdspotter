@@ -10,7 +10,7 @@ router.use(express.static(path.join(__dirname, '../public')));
 router.get('/', async (req, res) => {
   try {
     if(req.user !== undefined) {
-      res.render('advanced-search', { aut: true });
+      res.render('advanced-search', { aut: true, currentUser: req.user });
     }
     else {
       res.render('advanced-search', { aut: false });

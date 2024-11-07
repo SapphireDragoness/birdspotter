@@ -1,0 +1,55 @@
+<div class="card mb-3" style="min-width: 200px; max-width: 800px;">
+    <div class="row g-0 align-items-center">
+        <div class="col-12 col-sm-3 text-center">
+            <a href="/users/<%= f.username %>/posts">
+                <img src="../<%= f.picture %>" class="rounded-circle img-fluid p-2" style="max-width: 100%; max-height: 150px;"
+                     alt="profile picture">
+            </a>
+        </div>
+        <div class="col-12 col-sm-8">
+            <div class="card-body text-center text-sm-start">
+                <a href="/users/<%= f.username %>/posts">
+                    <h3 class="card-title text-truncate"><%= f.username %></h3>
+                    <% if(f.type === 'admin') { %>
+                        <h4 class="text-end"><span class="badge text-bg-success">Administrator</span></h4>
+                    <% } else if(f.type === 'moderator') { %>
+                        <h4 class="text-end"><span class="badge text-bg-warning">Moderator</span></h4>
+                    <% } else if(f.banned) { %>
+                        <h4 class="text-end"><span class="badge text-bg-danger">Banned</span></h4>
+                    <% } else { %>
+                        <h4 class="text-end"><span class="badge text-bg-primary">User</span></h4>
+                    <% } %>
+                </a>
+
+                <% if(currentUser.type === 'admin' || currentUser.type === 'moderator') { %>
+                    <div class="dropdown mt-2">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-<%= f.username %>"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            Options
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-<%= f.username %>">
+                            <% if(f.banned) { %>
+                                <li><button class="dropdown-item btn-unban" data-username="<%= f.username %>">Unban user</button></li>
+                            <% } else { %>
+                                <li><button class="dropdown-item btn-ban" data-username="<%= f.username %>">Ban user</button></li>
+                            <% } %>
+                            <% if(currentUser.type === 'admin') { %>
+                                <% if(f.type !== 'admin') { %>
+                                    <li><button class="dropdown-item btn-make-admin" data-username="<%= f.username %>">Make admin</button></li>
+                                <% } else { %>
+                                    <li><button class="dropdown-item btn-revoke-admin" data-username="<%= f.username %>">Revoke admin</button></li>
+                                <% } %>
+                                <% if(f.type !== 'moderator') { %>
+                                    <li><button class="dropdown-item btn-make-moderator" data-username="<%= f.username %>">Make moderator</button></li>
+                                <% } else { %>
+                                    <li><button class="dropdown-item btn-revoke-moderator" data-username="<%= f.username %>">Revoke moderator</button></li>
+                                <% } %>
+                                <li><button class="dropdown-item btn-delete" data-username="<%= f.username %>">Delete user</button></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,60 +1,28 @@
 'use strict'
 
 var postID = document.getElementById("comment-script").getAttribute("data-postID");
-var user = document.getElementById("comment-script").getAttribute("data-user");
+var user = JSON.parse(document.getElementById("comment-script").getAttribute("data-user"));
 
 $(document).ready(function () {
-  $.get(`/posts/${postID}/comments`, function (comments) {
-    comments.forEach(comment => {
-      $('#comments-section').append(`
-                <div class="card mb-4">
-  <div class="card-body">
-    <p>${comment.comment}</p>
-
-    <div class="d-flex justify-content-between">
-      <div class="d-flex flex-row align-items-center">
-        <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
-             height="25"/>
-        <p class="small mb-0 ms-2"><strong>${comment.username}</strong></p>
-      </div>
-      <div class="d-flex flex-row align-items-center">
-        <p class="small text-muted mb-0">Upvote?</p>
-        <i class="fas fa-heart mx-2" style="margin-top: -0.16rem;"></i>
-        <p class="small text-muted mb-0">3</p>
-      </div>
-    </div>
-  </div>
-</div>
-            `);
-    });
-  });
-
-
   $('#add-comment-form').on('submit', function (e) {
     e.preventDefault();
     const commentContent = $(this).find('textarea[name="comment"]').val();
 
     $.post(`/posts/${postID}/comments`, {content: commentContent})
-      .done(function (newComment) {
+      .done(function (newComment, user) {
         $('#comments-section').append(`
-                <div class="card mb-4">
-  <div class="card-body">
-    <p>${newComment.comment}</p>
-
-    <div class="d-flex justify-content-between">
-      <div class="d-flex flex-row align-items-center">
-        <img src="" alt="avatar" width="25"
-             height="25"/>
-        <p class="small mb-0 ms-2"><strong>${newComment.user}</strong></p>
-      </div>
-      <div class="d-flex flex-row align-items-center">
-        <p class="small text-muted mb-0">Upvote?</p>
-        <i class="fas fa-heart mx-2" style="margin-top: -0.16rem;"></i>
-        <p class="small text-muted mb-0">3</p>
-      </div>
-    </div>
-  </div>
-</div>    
+          <div class="card mb-3" data-comment-id="${newComment.id}">
+            <div class="card-body d-flex align-items-start">
+              <img src="${newComment.picture}" alt="User Picture" class="rounded-circle me-3" width="50" height="50"/>
+            <div class="w-100">
+              <h6 class="card-subtitle mb-2 text-muted"><strong>${newComment.user}</strong></h6>
+              <p class="card-text">${newComment.comment}</p>
+            </div>
+            <button id="delete-comment" class="btn btn-lg btn-link" style="font-size: small">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
         `);
         $('#add-comment-form')[0].reset();
       })
@@ -62,4 +30,21 @@ $(document).ready(function () {
         alert("Error posting comment.");
       });
   });
+
+  $('#comments-section').on('click', '#delete-comment', function () {
+    const commentCard = $(this).closest('.card');
+    const commentId = commentCard.data('comment-id');
+
+    $.ajax({
+      url: `/posts/${postID}/comments/${commentId}`,
+      type: 'DELETE',
+      success: function () {
+        commentCard.remove();
+      },
+      error: function () {
+        alert("Error deleting comment.");
+      }
+    });
+  });
+
 });

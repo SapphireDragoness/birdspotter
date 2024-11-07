@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Home page">
+    <!-- custom CSS -->
+    <link href="/stylesheets/style.css" rel="stylesheet">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>BirdSpotter</title>
+
+</head>
+<body class="d-flex flex-column h-100">
+
+<!-- Navbar -->
+<%- include('navbar.ejs') %>
+
+<main class="flex-shrink-0 min-vh-100">
+
+    <section class="py-5 text-center container">
+        <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light pb-3">Donate!</h1>
+                <p class="lead text-muted">
+                    Love birds? Then consider donating to Birdspotter!
+                </p>
+                <div id="paypal-button-container">
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<%- include('footer.ejs') %>
+<!-- common scripts -->
+<%- include('scripts.ejs') %>
+<!-- paypal -->
+<script src="https://www.paypal.com/sdk/js?client-id=Ae2qMXMaq0zmxDBKrVxciDOGdiYDxE1XLX3MVQnUTqnQjLOhIumyGwEaVauFGBZr4-4BS0jdAUEW52Tk&currency=EUR"></script>
+<script src="../javascripts/donation.js"></script>
+</body>
+</html>

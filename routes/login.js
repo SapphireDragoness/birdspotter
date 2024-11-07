@@ -20,7 +20,7 @@ router.post('/', function (req, res, next) {
     if(err) return next(err);
     // user not found
     if(!user) {
-      res.render('login-register.ejs', {
+      return res.render('login-register.ejs', {
         failure: true,
         login: true,
         type: null,
@@ -29,10 +29,20 @@ router.post('/', function (req, res, next) {
         aut: false
       });
     }
+    // user banned
+    if(user.banned) {
+      return res.render('login-register.ejs', {
+        failure: true,
+        login: true,
+        type: null,
+        message: 'Can\'t log in, you are banned!',
+        successMessage: false,
+        aut: false
+      });
+    }
     else {
       req.login(user, function (err) {
         if (err) return next(err);
-        console.log('user ' + user.username + ' authenticated')
         res.redirect('/');
       });
     }

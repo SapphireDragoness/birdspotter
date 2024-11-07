@@ -33,13 +33,12 @@ router.get('/:postID', async (req, res) => {
         liked,
         saved,
         currentUser: req.user,
-        aut: true,
-        type: req.user.type
+        aut: true
       });
     } else
-      res.render('post-page.ejs', {likes, post, comments, posts, aut: false, type: false, currentUser: false});
+      res.render('post-page.ejs', {likes, post, comments, posts, aut: false, currentUser: false});
   } catch (error) {
-    res.render('error.ejs', {code: '404', message: error});
+    res.render('error.ejs', {message: error});
   }
 });
 
@@ -54,6 +53,9 @@ router.post('/:postID/remove', async (req, res) => {
   }
 });
 
+/**
+ * Likes a post
+ */
 router.post('/:postID/like', async (req, res) => {
   try {
     const {username} = req.body;
@@ -65,6 +67,9 @@ router.post('/:postID/like', async (req, res) => {
   }
 });
 
+/**
+ * Removes like from a post
+ */
 router.post('/:postID/unlike', async (req, res) => {
   try {
     const {username} = req.body;
@@ -76,6 +81,9 @@ router.post('/:postID/unlike', async (req, res) => {
   }
 });
 
+/**
+ * Saves a post for a user
+ */
 router.post('/:postID/save', async (req, res) => {
   try {
     const {username} = req.body;
@@ -87,6 +95,9 @@ router.post('/:postID/save', async (req, res) => {
   }
 });
 
+/**
+ * Removes a saved post
+ */
 router.post('/:postID/unsave', async (req, res) => {
   try {
     const {username} = req.body;
@@ -107,7 +118,6 @@ router.get('/:postID/comments', async (req, res) => {
     const comments = await postsDao.getCommentsByPostID(postID);
     res.json(comments);
   } catch (error) {
-    console.log(error);
     res.status(500).json({message: 'Error fetching comments'});
   }
 });
@@ -131,6 +141,9 @@ router.post('/:postID/comments', async (req, res) => {
   }
 });
 
+/**
+ * Gets edit page
+ */
 router.get('/:postID/edit', async (req, res) => {
   const postID = req.params.postID;
   const username = req.user.username;
@@ -148,6 +161,9 @@ router.get('/:postID/edit', async (req, res) => {
   }
 });
 
+/**
+ * Updates a post
+ */
 router.post('/:postID/edit', [
   check('title').notEmpty().withMessage('Please enter a title'),
   check('bird').notEmpty().withMessage('Please select a bird'),
@@ -171,20 +187,21 @@ router.post('/:postID/edit', [
         });
       }
       try {
-        await postsDao.updatePost(postID, username, req.body.title, req.body.description, req.body.bird, req.body.location);
+        await postsDao.updatePost(postID, post.op, req.body.title, req.body.description, req.body.bird, req.body.location);
         return res.redirect(`/posts/${postID}`);
       } catch (error) {
         return res.render('error.ejs', {message: error.message, error: error.message});
       }
-    }
-    else
+    } else
       return res.render('error.ejs', {message: 'Cannot edit this post.'});
   } else {
     return res.redirect('/');
   }
 });
 
-
+/**
+ * Deletes a post when on a post
+ */
 router.post('/:postID/delete', async (req, res) => {
   const postID = req.params.postID;
   const username = req.user.username;
@@ -204,6 +221,38 @@ router.post('/:postID/delete', async (req, res) => {
     }
   } else {
     res.redirect('/');
+  }
+});
+
+/**
+ * Deletes a post from admin panel
+ */
+router.delete('/:postID', async (req, res) => {
+  const postID = req.params.postID;
+  const username = req.user.username;
+
+  try {
+    const post = await postsDao.getPostByID(postID);
+    if (post.op === username || req.user.type === 'admin' || req.user.type === 'moderator') {
+      await postsDao.removePost(postID);
+      res.sendStatus(200);
+    } else {
+      res.status(403).json({message: 'You don\'t have permission to delete this post.'});
+    }
+  } catch (error) {
+    res.status(500).json({message: 'Error deleting comment.'});
+  }
+});
+
+/**
+ * Deletes a comment
+ */
+router.delete('/:postID/comments/:commentID', async (req, res) => {
+  try {
+    await postsDao.removeComment(req.params.commentID);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).json({message: 'Error deleting comment.'});
   }
 });
 

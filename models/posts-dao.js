@@ -3,7 +3,7 @@
 const db = require('../db.js');
 
 /**
- * Function to map database rows to values.
+ * Function to map database rows to values (for posts).
  *
  * @param post
  * @returns {{date: *, op, photoPath, bird, location, comment: (boolean|*), id, title}}
@@ -382,7 +382,6 @@ exports.removePost = function (id) {
 };
 
 
-
 /**
  * Returns the number of likes on a post.
  *
@@ -605,26 +604,48 @@ exports.getPostsLikedByUser = function (username) {
 };
 
 /**
+ * Gets all posts saved by a specific user.
+ *
+ * @param username
+ * @returns {Promise<unknown>}
+ */
+exports.getPostsSavedByUser = function (username) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT posts.*
+        FROM saved
+                 JOIN posts ON saved.post = posts.id
+        WHERE saved.user = ?;
+    `;
+
+    db.all(sql, [username], (err, rows) => {
+      if (err) reject(err);
+      else {
+        let posts = rows.map(mapPost);
+        resolve(posts);
+      }
+    });
+  });
+};
+
+/**
  * Gets all comments on a post and relative usernames.
  *
  * @param postID
  * @returns {Promise<unknown>}
  */
-exports.getCommentsByPostID = function (postID) {
+exports.getCommentsByPostID = function(postID) {
   return new Promise((resolve, reject) => {
-    const sql = `
-        SELECT comments.id, comments.comment, comments.user, users.username
-        FROM comments
-                 JOIN users ON comments.user = users.username
-        WHERE comments.post = ?;
-    `;
-
+    const sql = `SELECT id, user, post, comment, userPicture FROM comments WHERE post = ?`;
     db.all(sql, [postID], (err, rows) => {
-      if (err) reject(err);
+      if (err) {
+        reject(err);
+      }
       else resolve(rows);
     });
   });
 };
+
 
 /**
  * Adds a comment to the database.
@@ -734,14 +755,19 @@ exports.removeSave = function (username, postID) {
 
 // admin thingies
 
+/**
+ * Retrieves the number of posts posted each day for the last month.
+ *
+ * @returns {Promise<unknown>}
+ */
 exports.getDailyPostCount = function () {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT DATE(date) as postDate, COUNT(*) as count
-      FROM posts
-      GROUP BY postDate
-      ORDER BY postDate DESC
-      LIMIT 30`;
+        SELECT DATE(date) as postDate, COUNT(*) as count
+        FROM posts
+        GROUP BY postDate
+        ORDER BY postDate DESC
+        LIMIT 30`;
 
     db.all(sql, [], (err, rows) => {
       if (err) reject(err);
@@ -749,4 +775,48 @@ exports.getDailyPostCount = function () {
     });
   });
 };
+
+/**
+ * Retrieves all posts from the database.
+ *
+ * @returns {Promise<unknown>}
+ */
+exports.getAllPosts = function () {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT *
+        FROM posts
+    `;
+
+    db.all(sql, (err, rows) => {
+      if (err) reject(err);
+      else {
+        let posts = rows.map(mapPost);
+        resolve(posts);
+      }
+    });
+  });
+};
+
+/**
+ * Retrieves all comments from the database.
+ *
+ * @returns {Promise<unknown>}
+ */
+exports.getAllComments = function () {
+  return new Promise((resolve, reject) => {
+    const sql = `
+        SELECT *
+        FROM comments
+    `;
+
+    db.all(sql, (err, rows) => {
+      if (err) reject(err);
+      else {
+        resolve(rows);
+      }
+    });
+  });
+};
+
 
