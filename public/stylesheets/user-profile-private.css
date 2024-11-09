@@ -93,3 +93,27 @@
     border: 2px solid #212529;
     color: #212529;
 }
+
+@media only screen and (max-width: 1026px) {
+    #miniprofile {
+        display: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    #bdSidebar ul {
+        flex-direction: row;
+        padding: 0;
+    }
+
+    #bdSidebar ul li {
+        margin-right: 15px; /* Spazio tra gli elementi */
+    }
+
+    #bdSidebar ul li a {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+    }
+}
+

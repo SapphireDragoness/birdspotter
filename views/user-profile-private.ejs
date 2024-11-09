@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="User profile">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     <!-- custom CSS -->
     <link href="../stylesheets/user-profile-private.css" rel="stylesheet">
     <!-- Bootstrap core CSS -->
@@ -22,7 +23,7 @@
     <div id="bdSidebar"
          class="d-flex flex-column
                     flex-shrink-0
-                    p-3 bg-dark
+                    p-lg-3 bg-dark
                     text-white sidebar collapse min-vh-100">
         <ul class="mynav nav nav-pills flex-column mb-auto">
             <li class="nav-item mb-1">
@@ -64,7 +65,7 @@
         </ul>
     </div>
 
-    <div class="col-md-3 border-right">
+    <div id="miniprofile" class="col-sm-3 border-right">
         <div class="d-flex flex-column align-items-center text-center p-3 py-5">
             <img class="rounded-circle mt-5 mb-5"
                  width="200px"
@@ -83,9 +84,9 @@
 
     <% if(page === 1) { %>
 
-        <div class="col-md-5 border-right">
+        <div class="col-md-5 col-lg-10 border-right">
             <div class="p-3 py-5">
-                <div class="d-flex justify-content-between align-items-center mb-5">
+                <div class="d-flex align-items-center mb-5">
                     <h4 class="text-right">My profile</h4>
                 </div>
                 <div class="custom-form-group mt-3">

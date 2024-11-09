@@ -28,14 +28,12 @@
             <div class="mx-2">
                 <!-- checks if user is authenticated and displays the correct navbar -->
                 <% if (!aut) { %>
-                    <a href="/login">
-                        <button type="button" class="btn btn-outline-light me-2"><i
-                                    class="fa-solid fa-right-to-bracket"></i> Login
-                        </button>
+                    <a href="/login" class="btn btn-outline-light"><i
+                                    class="fa-solid fa-right-to-bracket me-2"></i>
+                        Login
                     </a>
-                    <a href="/register">
-                        <button type="button" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Sign-up
-                        </button>
+                    <a href="/register" class="btn btn-warning"><i class="fa-solid fa-pen-to-square me-2"></i>
+                        Sign-up
                     </a>
                 <% } else { %>
                     <div class="btn-group">

@@ -348,6 +348,8 @@ exports.deleteUser = async function(username) {
     await db.run("DELETE FROM likes WHERE user = ?", [username]);
     await db.run("DELETE FROM saved WHERE user = ?", [username]);
     await db.run("DELETE FROM comments WHERE user = ?", [username]);
+    await db.run("DELETE FROM follow WHERE follower = ?", [username]);
+    await db.run("DELETE FROM follow WHERE followed = ?", [username]);
 
     await db.run("DELETE FROM users WHERE username = ?", [username]);
 

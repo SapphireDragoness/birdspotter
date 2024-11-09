@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="User profile">
+    <meta name="description" content="admin">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
     <!-- custom CSS -->
     <link href="../stylesheets/user-profile-private.css" rel="stylesheet">
     <link href="../stylesheets/style.css" rel="stylesheet">
@@ -23,18 +24,18 @@
     <div id="bdSidebar"
          class="d-flex flex-column
                     flex-shrink-0
-                    p-3 bg-dark
+                    p-lg-3 bg-dark
                     text-white sidebar collapse min-vh-100">
         <ul class="mynav nav nav-pills flex-column mb-auto">
             <!-- only show stats if admin -->
             <% if(currentUser.type === 'admin') { %>
-            <li class="nav-item mb-1">
-                <a href="/admin/dashboard">
-                    <i class="fa-solid fa-chart-simple"></i>
-                    <span>Site stats</span>
-                </a>
-            </li>
-                <% } %>
+                <li class="nav-item mb-1">
+                    <a href="/admin/dashboard">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <span>Site stats</span>
+                    </a>
+                </li>
+            <% } %>
             <li class="nav-item mb-1">
                 <a href="/admin/user-list">
                     <i class="fa-regular fa-user"></i>
@@ -53,34 +54,36 @@
     <!-- site statistics -->
     <% if(page === 1 && currentUser.type === 'admin') { %>
 
-        <div class="col-sm-4 border-right ms-5">
-            <div class="p-3 mt-5 card card-body">
-                <div class="justify-content-center mb-3">
-                    <h4 class="text-center">Posts per day</h4>
+        <div class="container-fluid row-cols-sm-1 row pb-5">
+            <div class="col-sm-5 border-right ms-lg-5">
+                <div class="p-lg-3 mt-5 card card-body">
+                    <div class="justify-content-center mb-3">
+                        <h4 class="text-center">Posts per day</h4>
+                    </div>
+                    <canvas id="dailyPostsChart"></canvas>
                 </div>
-                <canvas id="dailyPostsChart"></canvas>
-            </div>
-            <div class="p-3 mt-5 card card-body">
-                <div class="justify-content-center mb-3">
-                    <h4 class="text-center">Best performing posts</h4>
+                <div class="p-lg-3 mt-5 card card-body">
+                    <div class="justify-content-center mb-3">
+                        <h4 class="text-center">Best performing posts</h4>
+                    </div>
+                    <canvas id="topPostsChart"></canvas>
                 </div>
-                <canvas id="topPostsChart"></canvas>
             </div>
-        </div>
 
-        <div class="col-sm-4 border-right ms-5">
-            <div class="p-3 mt-5 card card-body">
-                <div class="justify-content-center mb-3">
-                    <h4 class="text-center">Most followed users</h4>
+            <div class="col-sm-5 border-right ms-lg-5">
+                <div class="p-lg-3 mt-5 card card-body">
+                    <div class="justify-content-center mb-3">
+                        <h4 class="text-center">Most followed users</h4>
+                    </div>
+                    <canvas id="topFollowedChart"></canvas>
                 </div>
-                <canvas id="topFollowedChart"></canvas>
-            </div>
-            <div class="p-3 mt-5 card card-body">
-                <div class="justify-content-center mb-3">
-                    <h4 class="text-center">Revenue from donations</h4>
+                <div class="p-lg-3 mt-5 card card-body">
+                    <div class="justify-content-center mb-3">
+                        <h4 class="text-center">Revenue from donations</h4>
+                    </div>
+                    <!-- ran out of chart ideas -->
+                    TBA
                 </div>
-                <!-- ran out of chart ideas -->
-                TBA
             </div>
         </div>
         <!-- needs to be here otherwise it breaks page rendering -->
